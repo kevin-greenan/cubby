@@ -145,6 +145,8 @@ Initial MVP Scope
 
 The MVP should be Codex-first but platform-neutral internally.
 
+Implementation support docs live in docs/. They clarify install behavior, workspace ownership, adapter boundaries, managed-file semantics, and MVP acceptance checks. PLAN.md remains the product source of truth if a support doc conflicts with it.
+
 Implement the following:
 
 1. Repository structure
@@ -170,11 +172,23 @@ Initial Repository Structure
 Create this structure:
 
 cubby/
+  .github/
+    workflows/
+      quality.yml
   README.md
   LICENSE
   plan.md
+  docs/
+    README.md
+    mvp-implementation-guide.md
+    workspace-contract.md
+    manifest-and-managed-files.md
+    adapter-contract.md
+    testing-and-acceptance.md
   package.json
   tsconfig.json
+  scripts/
+    quality_check.py
   src/
     agents/
       classroom-orchestrator.md
@@ -382,6 +396,7 @@ Initial MVP behavior:
 * Repeat init may update managed files only when the current file still matches the manifest hash.
 * Repeat init must not overwrite files under cubby/local/, cubby/templates/custom/, cubby/outputs/, cubby/exports/, or cubby/logs/.
 * If a managed file has local edits, init should preserve it and report a warning.
+* Init and upgrade reporting should use these status names: created, skipped, updated, preserved-local-edit, and failed.
 * Upgrade can remain dry-run/reporting only until the managed-file behavior is covered by tests.
 
 Local State Model
@@ -1147,6 +1162,12 @@ Generate:
 * Workflow instructions
 * State conventions
 
+AGENTS.md distinction:
+
+* Root AGENTS.md is a repository-development guide for coding agents working on Cubby itself.
+* Generated workspace AGENTS.md is a Codex adapter output for teacher workspaces.
+* The root AGENTS.md must not be copied into installed workspaces; installed workspaces should use src/adapters/codex/AGENTS.md.template.
+
 src/adapters/codex/AGENTS.md.template should include:
 
 * Cubby overview
@@ -1367,7 +1388,7 @@ Definition of usable workspace:
 * cubby/config.yaml records profile, adapter, autonomy mode, output conventions, and review-gate defaults.
 * cubby/manifest.yaml records every managed file with enough metadata to detect local edits later.
 * cubby validate --workspace reports pass/warn/fail for required workspace shape and current task validity.
-* A repeat init preserves local files and reports whether managed files were created, skipped, updated, or preserved because of local edits.
+* A repeat init preserves local files and reports managed-file outcomes using created, skipped, updated, preserved-local-edit, and failed.
 
 Milestone 3: Core Agents and Rules
 
@@ -1468,7 +1489,7 @@ Deliverables:
 Acceptance criteria:
 
 * cubby upgrade --workspace ./examples/k5-special-ed-workspace --dry-run reports what would change.
-* Local files under cubby/local/, cubby/templates/custom/, cubby/outputs/, and cubby/logs/ are never overwritten.
+* Local files under cubby/local/, cubby/templates/custom/, cubby/outputs/, cubby/exports/, and cubby/logs/ are never overwritten.
 
 Milestone 9: Documentation and Examples
 
@@ -1543,6 +1564,7 @@ Add tests for:
 * Managed-file header insertion
 * Existing local file preservation
 * Manifest creation
+* Output/export/log directory preservation
 * State schema validation
 * Workflow schema validation
 * Profile schema validation
@@ -1558,6 +1580,7 @@ Example test cases:
 5. validate passes on a fresh workspace.
 6. validate fails if current-task.yaml is malformed.
 7. upgrade --dry-run reports changes without modifying files.
+8. repeat init and upgrade --dry-run do not modify files under cubby/outputs/, cubby/exports/, or cubby/logs/.
 
 First Codex Task
 
@@ -1645,7 +1668,6 @@ The tone should be:
 * Warm
 * Clear
 * Professional
-* Cozy
 * Respectful of teachers’ expertise
 
 Cubby should feel like a well-organized classroom cart: everything labeled, easy to reach, and ready before the bell rings.

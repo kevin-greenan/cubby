@@ -1,10 +1,12 @@
 # AGENTS.md
 
-## Local Agent Guide
+## Repository Development Agent Guide
 
-This file provides local operating instructions for AI coding agents working in this repository.
+This file provides local operating instructions for AI coding agents developing this repository.
 
-It is intended for local use only and should not be committed unless explicitly requested.
+This file is for Cubby repository development only. It is not part of Cubby's generated teacher-workspace outputs, and it should not be copied into installed workspaces unless a task explicitly asks for that.
+
+It remains named `AGENTS.md` so Codex and compatible coding agents can automatically discover it while working in this repo.
 
 ## Project Context
 
@@ -13,6 +15,8 @@ This repository contains Cubby, a portable AI workflow framework for K-5 educato
 Cubby installs structured AI workflows into teacher workspaces. It is not itself an LMS, SIS, IEP system, grading system, or classroom management platform.
 
 Use PLAN.md as the source of truth for product requirements, architecture, milestones, and implementation priorities.
+
+Use `docs/` for implementation guidance that expands the plan into concrete contracts and acceptance checks.
 
 ## How to Work in This Repository
 
@@ -56,8 +60,9 @@ Use these files as guidance in this order:
 
 1. User's explicit instruction in the current task
 2. PLAN.md
-3. Existing repository code and tests
-4. This AGENTS.md
+3. docs/README.md and the focused implementation docs it links to
+4. Existing repository code and tests
+5. This AGENTS.md
 
 When instructions conflict, prefer the user's current task. If ambiguity remains, choose the smallest safe implementation and document the assumption.
 
@@ -130,12 +135,13 @@ Prefer tests that verify observable behavior:
 After changes, run the relevant checks available in the repo, such as:
 
 ```text
+python scripts/quality_check.py
 npm run check
 npm run build
 npm test
 ```
 
-If a command is unavailable, report that plainly.
+If a command is unavailable, report that plainly. The Python quality check should remain runnable before the TypeScript project exists.
 
 ## CLI Behavior
 
