@@ -68,6 +68,7 @@ cubby/framework/agents/
 cubby/framework/commands/
 cubby/framework/extensions/
 cubby/framework/hooks/
+cubby/framework/packs/
 cubby/framework/profiles/
 cubby/framework/rules/
 cubby/framework/schemas/

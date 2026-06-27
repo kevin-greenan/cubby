@@ -1,0 +1,39 @@
+id: data-progress
+name: Data And Progress Pack
+description: Data trackers, progress-monitoring sheets, observation summaries, and chart-ready local artifact support.
+unmet_use_case: Teachers need local tools for organizing classroom progress evidence while keeping analysis separate from high-stakes educational decisions.
+status: active
+scope:
+  include:
+    - Progress-monitoring tables, observation summaries, chart-ready artifacts, and data collection handoffs.
+    - Draft summaries that distinguish raw observations from possible instructional implications.
+  exclude:
+    - Eligibility decisions, formal evaluation conclusions, grading policy decisions, or automated student placement.
+    - Longitudinal analytics that require district systems of record.
+workflows:
+  - data-tracker
+commands:
+  - data-tracker
+agents:
+  - classroom-orchestrator
+  - data-progress-specialist
+  - privacy-safeguards-reviewer
+templates:
+  - progress-monitoring-sheet
+  - validation-summary
+  - handoff
+validators:
+  - privacy-check
+hooks:
+  - validate
+tools:
+  - artifacts
+  - redact
+skills: []
+quality_checks:
+  - Preserve the distinction between observed data, calculations, assumptions, and interpretation.
+  - Avoid unnecessary identifiers and run privacy-check on generated artifacts.
+  - Keep generated trackers editable and reviewable by the responsible educator.
+review_gates:
+  human_review_required_for_sensitive_outputs: true
+  notes: Data summaries must distinguish observed data from interpretation and avoid unnecessary identifiers.

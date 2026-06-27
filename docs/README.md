@@ -14,6 +14,8 @@ Read order for implementation work:
 8. [walkthrough-lesson-pack.md](walkthrough-lesson-pack.md) for a low-risk lesson pack example.
 9. [walkthrough-parent-email.md](walkthrough-parent-email.md) for a review-gated family communication example.
 
+Sample generated artifacts live in [../examples/sample-outputs](../examples/sample-outputs).
+
 Run `python scripts/quality_check.py` after documentation or contract changes. GitHub Actions runs the same check on pushes and pull requests.
 
 These docs do not replace `PLAN.md`. If they conflict, follow the user's current instruction first, then `PLAN.md`, then these docs.

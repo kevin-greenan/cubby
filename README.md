@@ -40,6 +40,7 @@ node dist/cli/index.js artifacts --workspace ./examples/k5-special-ed-workspace 
 node dist/cli/index.js redact --workspace ./examples/k5-special-ed-workspace --source cubby/outputs/parent-emails/example/email-draft.md
 node dist/cli/index.js export --workspace ./examples/k5-special-ed-workspace --source cubby/outputs/lesson-packs/example/lesson-plan.md
 node dist/cli/index.js manifest --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js packs --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js upgrade --workspace ./examples/k5-special-ed-workspace --dry-run
 ```
 
@@ -55,5 +56,7 @@ npm test
 Use `PLAN.md` as the product source of truth. Use `docs/` for the implementation contracts that define the MVP install loop, managed-file behavior, adapter boundary, and test expectations.
 
 Start with [docs/performance-library.md](docs/performance-library.md) when adding hooks, extensions, tools, skills, or reusable workflow packs.
+
+See [examples/sample-outputs](examples/sample-outputs) for small, fictional examples of generated artifacts, validation summaries, handoffs, and review-gated family communication.
 
 The root `AGENTS.md` is for repository development only. Installed workspaces receive a generated `AGENTS.md` rendered from the Codex adapter template.

@@ -29,6 +29,7 @@ node dist/cli/index.js artifacts --workspace ./examples/k5-special-ed-workspace 
 node dist/cli/index.js redact --workspace ./examples/k5-special-ed-workspace --source cubby/outputs/parent-emails/example/email-draft.md
 node dist/cli/index.js export --workspace ./examples/k5-special-ed-workspace --source cubby/outputs/lesson-packs/example/lesson-plan.md
 node dist/cli/index.js manifest --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js packs --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js upgrade --workspace ./examples/k5-special-ed-workspace --dry-run
 ```
 
@@ -58,6 +59,8 @@ Add tests for:
 * Markdown export gate behavior
 * redaction scan reports
 * scaffold command behavior
+* sample output examples
+* pack listing and pack reference validation
 * manifest inspection
 * upgrade dry-run behavior
 
@@ -88,9 +91,13 @@ The test suite should cover:
 21. `redact` writes a warning report under `cubby/logs/redactions/`.
 22. `export` copies reviewed Markdown outputs to `cubby/exports/markdown/`.
 23. `export` blocks when human review is required unless `--force` is provided after review.
-24. `scaffold workflow <name>` and `scaffold agent <name>` create starter source files without overwriting existing files.
-25. `manifest` summarizes managed files, missing files, and local edits.
-26. `upgrade --dry-run` reports managed-file outcomes without modifying files.
+24. `scaffold workflow <name>`, `scaffold agent <name>`, and `scaffold pack <name> --need <unmet-use-case>` create starter source files without overwriting existing files.
+25. Active workflow packs must declare an unmet use case, include/exclude scope, quality checks, validators, and human-review gates; underspecified active packs fail validation.
+26. `packs` lists installed workflow packs.
+27. Pack references resolve to installed framework files during validation.
+28. `examples/sample-outputs/` contains fictional lesson-pack and parent-email artifacts.
+29. `manifest` summarizes managed files, missing files, and local edits.
+30. `upgrade --dry-run` reports managed-file outcomes without modifying files.
 
 ## Acceptance Standard
 

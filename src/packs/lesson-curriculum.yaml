@@ -1,0 +1,53 @@
+id: lesson-curriculum
+name: Lesson And Curriculum Pack
+description: Core lesson planning, lesson-pack generation, curriculum alignment, and reusable classroom materials.
+unmet_use_case: Teachers need a coordinated lesson-materials pack that creates aligned plans, handouts, checks, and accessibility notes from one task.
+status: active
+scope:
+  include:
+    - Lesson plans, lesson packs, materials outlines, differentiation supports, accessibility checks, and export-ready classroom drafts.
+    - Generic classroom materials and accommodation-aware drafts that remain reviewable before use.
+  exclude:
+    - Official curriculum adoption, summative assessment policy, individualized service decisions, or direct SIS/LMS publishing.
+    - Student-specific recommendations without human review.
+workflows:
+  - lesson-plan
+  - lesson-pack
+commands:
+  - lesson-plan
+  - lesson-pack
+agents:
+  - classroom-orchestrator
+  - lesson-architect
+  - curriculum-alignment-specialist
+  - differentiation-specialist
+  - materials-designer
+  - accessibility-language-reviewer
+  - privacy-safeguards-reviewer
+templates:
+  - lesson-plan
+  - lesson-pack/lesson-plan
+  - lesson-pack/slides-outline
+  - lesson-pack/student-handout
+  - lesson-pack/exit-ticket
+  - lesson-pack/differentiation-matrix
+  - validation-summary
+  - handoff
+validators:
+  - alignment-check
+  - accessibility-check
+  - privacy-check
+hooks:
+  - validate
+  - export
+tools:
+  - artifacts
+  - export
+skills: []
+quality_checks:
+  - Keep objectives, activities, materials, and checks aligned to the stated grade, standard, and teacher constraints.
+  - Run alignment-check, accessibility-check, and privacy-check before handoff or export.
+  - Require review for accommodation-aware or student-specific materials.
+review_gates:
+  human_review_required_for_sensitive_outputs: true
+  notes: Generic lessons may export after validation; accommodation-aware or student-specific materials require review.

@@ -1,0 +1,42 @@
+id: behavior-support
+name: Behavior Support Pack
+description: Draft/review support for behavior routines, observation tools, replacement-skill practice, and fidelity checklists.
+unmet_use_case: Teachers need bounded behavior-support drafting that organizes observations and routines without replacing professional behavior-analysis review.
+status: active
+scope:
+  include:
+    - Classroom routines, antecedent-behavior-consequence observations, replacement-skill practice, and fidelity checklists.
+    - Draft materials that help staff prepare for team review or implementation planning.
+  exclude:
+    - Functional behavior assessments, behavior intervention plan approval, discipline decisions, or crisis guidance.
+    - Clinical, legal, or eligibility determinations.
+workflows:
+  - behavior-routine
+commands:
+  - behavior-routine
+agents:
+  - classroom-orchestrator
+  - behavior-support-specialist
+  - data-progress-specialist
+  - family-communication-specialist
+  - privacy-safeguards-reviewer
+templates:
+  - abc-data-sheet
+  - validation-summary
+  - handoff
+validators:
+  - behavior-support-check
+  - privacy-check
+hooks:
+  - validate
+tools:
+  - redact
+  - artifacts
+skills: []
+quality_checks:
+  - Keep every recommendation tied to teacher-provided observations, routines, or stated replacement skills.
+  - Mark behavior interpretations and intervention language as draft material requiring professional review.
+  - Run behavior-support-check and privacy-check before handoff or export.
+review_gates:
+  human_review_required_for_sensitive_outputs: true
+  notes: Behavior recommendations and interpretations remain drafts until reviewed by the responsible professional.

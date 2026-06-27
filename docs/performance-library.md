@@ -20,6 +20,7 @@ Cubby's shared source should grow across these families:
 * tools: executable helpers for generation, validation, conversion, export, redaction, or indexing
 * skills: portable task instructions that agent platforms can expose directly
 * profiles: role-specific bundles for teachers, special education, coaching, BCBA support, and intervention
+* packs: curated workflow families that bundle commands, workflows, agents, templates, validators, tools, hooks, and review gates
 * adapters: provider-specific renderers and install mappings
 
 ## Performance Goal

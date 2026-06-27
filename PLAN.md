@@ -309,6 +309,12 @@ cubby/
       diagnose.yaml
       validate.yaml
       export.yaml
+    packs/
+      lesson-curriculum.yaml
+      family-communication.yaml
+      special-education.yaml
+      behavior-support.yaml
+      data-progress.yaml
     extensions/
       README.md
     tools/
@@ -1698,6 +1704,7 @@ node dist/cli/index.js handoff --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js artifacts --workspace ./examples/k5-special-ed-workspace --query lesson
 node dist/cli/index.js redact --workspace ./examples/k5-special-ed-workspace --source cubby/outputs/parent-emails/example/email-draft.md
 node dist/cli/index.js manifest --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js packs --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js upgrade --workspace ./examples/k5-special-ed-workspace --dry-run
 
 Also verify:

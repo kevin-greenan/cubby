@@ -58,6 +58,10 @@ export interface ManifestOptions {
   workspace: string;
 }
 
+export interface PacksOptions {
+  workspace: string;
+}
+
 export interface ArtifactsOptions {
   workspace: string;
   query: string | undefined;
@@ -74,6 +78,7 @@ export interface ScaffoldOptions {
   kind: string | undefined;
   name: string | undefined;
   root: string;
+  need: string | undefined;
 }
 
 export interface RedactOptions {

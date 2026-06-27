@@ -25,9 +25,12 @@ test("init creates a valid Codex workspace", async () => {
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/lesson-plan.md"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/redact.md"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/scaffold.md"), "utf8"), /managed-by: cubby/);
+    assert.match(await readFile(path.join(workspace, "cubby/framework/commands/packs.md"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/workflows/lesson-plan.yaml"), "utf8"), /managed-by: cubby/);
+    assert.match(await readFile(path.join(workspace, "cubby/framework/packs/lesson-curriculum.yaml"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/skills/README.md"), "utf8"), /Skills/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/subagents/README.md"), "utf8"), /Subagents/);
+    assert.match(await readFile(path.join(workspace, "cubby/framework/tools/pack-design.md"), "utf8"), /Pack Design/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/templates/validation-summary.md"), "utf8"), /Validation Summary/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/templates/handoff.md"), "utf8"), /Handoff/);
 
@@ -124,6 +127,88 @@ test("validate writes a validation log", async () => {
   });
 });
 
+test("validate warns on sensitive patterns in artifacts", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    await writeFile(path.join(workspace, "cubby/outputs/parent-emails/draft.md"), "Email: family@example.com\n", "utf8");
+
+    const result = await runCli(["validate", "--workspace", workspace]);
+
+    assert.match(result.stdout, /Cubby validation passed with warnings/);
+    assert.match(result.stdout, /sensitive-pattern scan found 1 finding/);
+  });
+});
+
+test("validate fails on broken pack references", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    const packPath = path.join(workspace, "cubby/framework/packs/broken.yaml");
+    await writeFile(
+      packPath,
+      [
+        "id: broken",
+        "name: Broken",
+        "description: Broken pack for regression testing missing references in validation.",
+        "unmet_use_case: Teachers need this regression pack to prove missing workflow references fail validation.",
+        "status: active",
+        "scope:",
+        "  include:",
+        "    - Regression coverage for pack reference validation.",
+        "  exclude:",
+        "    - Production workflow behavior.",
+        "workflows:",
+        "  - missing-workflow",
+        "validators:",
+        "  - privacy-check",
+        "quality_checks:",
+        "  - Confirm reference validation fails when a workflow is missing.",
+        "  - Keep this fixture focused on the missing reference path.",
+        "review_gates:",
+        "  human_review_required_for_sensitive_outputs: true",
+        "  notes: Regression fixture still models the human-review gate required by active packs.",
+        ""
+      ].join("\n"),
+      "utf8"
+    );
+
+    await assert.rejects(runCli(["validate", "--workspace", workspace]));
+  });
+});
+
+test("validate fails on underspecified active packs", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    const packPath = path.join(workspace, "cubby/framework/packs/sloppy.yaml");
+    await writeFile(
+      packPath,
+      [
+        "id: sloppy",
+        "name: Sloppy",
+        "description: TBD placeholder pack",
+        "unmet_use_case: TBD",
+        "status: active",
+        "scope:",
+        "  include:",
+        "    - TBD",
+        "  exclude:",
+        "    - TBD",
+        "workflows: []",
+        "validators: []",
+        "quality_checks:",
+        "  - TBD",
+        "  - TODO",
+        "review_gates:",
+        "  human_review_required_for_sensitive_outputs: false",
+        "  notes: TBD",
+        ""
+      ].join("\n"),
+      "utf8"
+    );
+
+    await assert.rejects(runCli(["validate", "--workspace", workspace]));
+  });
+});
+
 test("status summarizes current task and manifest", async () => {
   await withWorkspace(async (workspace) => {
     await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
@@ -171,6 +256,23 @@ test("manifest summarizes managed files and local edits", async () => {
     assert.match(result.stdout, /Cubby manifest/);
     assert.match(result.stdout, /Managed files: \d+/);
     assert.match(result.stdout, /Local edits: 1/);
+  });
+});
+
+test("packs lists installed workflow packs", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+
+    const result = await runCli(["packs", "--workspace", workspace]);
+
+    assert.match(result.stdout, /Cubby packs/);
+    assert.match(result.stdout, /lesson-curriculum/);
+    assert.match(result.stdout, /family-communication/);
+    assert.match(result.stdout, /need: Teachers need a coordinated lesson-materials pack/);
+    assert.match(result.stdout, /include: Lesson plans, lesson packs/);
+    assert.match(result.stdout, /exclude: Official curriculum adoption/);
+    assert.match(result.stdout, /workflows: lesson-plan, lesson-pack/);
+    assert.match(result.stdout, /quality: Keep objectives, activities, materials/);
   });
 });
 
@@ -284,19 +386,40 @@ test("scaffold creates workflow and agent starters without overwriting", async (
   try {
     await mkdir(path.join(root, "src/workflows"), { recursive: true });
     await mkdir(path.join(root, "src/agents"), { recursive: true });
+    await mkdir(path.join(root, "src/packs"), { recursive: true });
 
     const workflow = await runCli(["scaffold", "workflow", "weekly-plan", "--root", root]);
     const agent = await runCli(["scaffold", "agent", "math-specialist", "--root", root]);
+    const pack = await runCli([
+      "scaffold",
+      "pack",
+      "operations-pack",
+      "--need",
+      "Teachers need a coordinated daily operations pack for recurring classroom routines.",
+      "--root",
+      root
+    ]);
 
     assert.match(workflow.stdout, /src\/workflows\/weekly-plan.yaml/);
     assert.match(agent.stdout, /src\/agents\/math-specialist.md/);
+    assert.match(pack.stdout, /src\/packs\/operations-pack.yaml/);
     assert.match(await readFile(path.join(root, "src/workflows/weekly-plan.yaml"), "utf8"), /id: weekly-plan/);
     assert.match(await readFile(path.join(root, "src/agents/math-specialist.md"), "utf8"), /# Math Specialist/);
+    assert.match(await readFile(path.join(root, "src/packs/operations-pack.yaml"), "utf8"), /id: operations-pack/);
+    assert.match(await readFile(path.join(root, "src/packs/operations-pack.yaml"), "utf8"), /unmet_use_case: Teachers need a coordinated daily operations pack/);
+    assert.match(await readFile(path.join(root, "src/packs/operations-pack.yaml"), "utf8"), /quality_checks:/);
 
     await assert.rejects(runCli(["scaffold", "workflow", "weekly-plan", "--root", root]));
   } finally {
     await rm(root, { recursive: true, force: true });
   }
+});
+
+test("sample outputs include lesson and parent email examples", async () => {
+  assert.match(await readFile(path.resolve("examples/sample-outputs/lesson-pack/main-idea-grade-2/lesson-plan.md"), "utf8"), /Main Idea Lesson Plan/);
+  assert.match(await readFile(path.resolve("examples/sample-outputs/lesson-pack/main-idea-grade-2/validation-summary.md"), "utf8"), /Validation Summary/);
+  assert.match(await readFile(path.resolve("examples/sample-outputs/parent-emails/conference-prep/email-draft.md"), "utf8"), /Conference Prep Email Draft/);
+  assert.match(await readFile(path.resolve("examples/sample-outputs/parent-emails/conference-prep/review-checklist.md"), "utf8"), /Review Checklist/);
 });
 
 async function withWorkspace(callback) {

@@ -4,6 +4,7 @@ import Ajv2020 from "ajv/dist/2020.js";
 import YAML from "yaml";
 import { USER_OWNED_DIRS } from "./constants.js";
 import { exists, listFilesRecursive, readText, sha256, workspacePath, writeText } from "./fs-utils.js";
+import { findSensitivePatterns } from "./sensitive.js";
 import type { Manifest, ValidateOptions } from "./types.js";
 
 interface ValidationMessage {
@@ -11,6 +12,32 @@ interface ValidationMessage {
   path: string;
   message: string;
 }
+
+interface PackDefinition {
+  id?: string;
+  name?: string;
+  description?: string;
+  unmet_use_case?: string;
+  status?: "draft" | "active" | "deprecated";
+  scope?: {
+    include?: string[];
+    exclude?: string[];
+  };
+  workflows?: string[];
+  commands?: string[];
+  agents?: string[];
+  templates?: string[];
+  validators?: string[];
+  hooks?: string[];
+  tools?: string[];
+  quality_checks?: string[];
+  review_gates?: {
+    human_review_required_for_sensitive_outputs?: boolean;
+    notes?: string;
+  };
+}
+
+const PLACEHOLDER_PATTERN = /\b(tbd|todo|placeholder|lorem|describe|add pack-specific|add one to three|ai slop)\b/i;
 
 const REQUIRED_PATHS = [
   "AGENTS.md",
@@ -26,6 +53,7 @@ const REQUIRED_PATHS = [
   "cubby/framework/hooks/validate.yaml",
   "cubby/framework/skills/README.md",
   "cubby/framework/tools/README.md",
+  "cubby/framework/tools/pack-design.md",
   "cubby/framework/extensions/README.md"
 ];
 
@@ -81,6 +109,8 @@ export async function runValidate(options: ValidateOptions): Promise<number> {
   }
 
   await validateFrameworkDefinitions(workspace, messages);
+  await validatePackReferences(workspace, messages);
+  await runArtifactValidation(workspace, messages);
   await writeValidationLog(workspace, messages);
 
   printMessages(workspace, messages);
@@ -119,6 +149,7 @@ async function validateWithSchema(data: unknown, schemaRelativePath: string, tar
 
 async function validateFrameworkDefinitions(workspace: string, messages: ValidationMessage[]): Promise<void> {
   await validateYamlFiles(workspace, "cubby/framework/workflows", "src/schemas/workflow.schema.json", messages);
+  await validateYamlFiles(workspace, "cubby/framework/packs", "src/schemas/pack.schema.json", messages);
   await validateYamlFiles(workspace, "cubby/framework/profiles", "src/schemas/profile.schema.json", messages);
   await validateYamlFiles(workspace, "cubby/framework/validators", "src/schemas/validation-result.schema.json", messages);
 }
@@ -135,6 +166,144 @@ async function validateYamlFiles(workspace: string, relativeDir: string, schemaP
     if (parsed) {
       await validateWithSchema(parsed, schemaPath, relativePath, messages);
     }
+  }
+}
+
+async function validatePackReferences(workspace: string, messages: ValidationMessage[]): Promise<void> {
+  const packDir = workspacePath(workspace, "cubby/framework/packs");
+  if (!(await exists(packDir))) {
+    return;
+  }
+
+  const files = (await listFilesRecursive(packDir)).filter((file) => file.endsWith(".yaml") || file.endsWith(".yml"));
+  for (const file of files) {
+    const relativePath = path.relative(workspace, file).split(path.sep).join("/");
+    const parsed = await parseYaml<PackDefinition>(workspace, relativePath, messages);
+    if (!parsed) {
+      continue;
+    }
+    validatePackQuality(relativePath, parsed, messages);
+    await validatePackReferenceList(workspace, relativePath, "workflow", parsed.workflows, (id) => [`cubby/framework/workflows/${id}.yaml`], messages);
+    await validatePackReferenceList(workspace, relativePath, "command", parsed.commands, (id) => [`cubby/framework/commands/${id}.md`], messages);
+    await validatePackReferenceList(workspace, relativePath, "agent", parsed.agents, (id) => [`cubby/framework/agents/${id}.md`], messages);
+    await validatePackReferenceList(workspace, relativePath, "template", parsed.templates, (id) => [`cubby/framework/templates/${id}.md`, `cubby/framework/templates/${id}.csv`], messages);
+    await validatePackReferenceList(workspace, relativePath, "validator", parsed.validators, (id) => [`cubby/framework/validators/${id}.yaml`], messages);
+    await validatePackReferenceList(workspace, relativePath, "hook", parsed.hooks, (id) => [`cubby/framework/hooks/${id}.yaml`], messages);
+    await validatePackReferenceList(workspace, relativePath, "tool", parsed.tools, (id) => [`cubby/framework/tools/${id}.md`, `cubby/framework/commands/${id}.md`], messages);
+  }
+}
+
+function validatePackQuality(packPath: string, pack: PackDefinition, messages: ValidationMessage[]): void {
+  const isActive = pack.status === "active";
+  const failOrWarn: "fail" | "warn" = isActive ? "fail" : "warn";
+  const issues: string[] = [];
+  const textFields = [
+    pack.id,
+    pack.name,
+    pack.description,
+    pack.unmet_use_case,
+    ...(pack.scope?.include ?? []),
+    ...(pack.scope?.exclude ?? []),
+    ...(pack.quality_checks ?? []),
+    pack.review_gates?.notes
+  ].filter((value): value is string => typeof value === "string");
+
+  if (!pack.description || pack.description.trim().length < 40) {
+    issues.push("description must be specific");
+  }
+  if (!pack.unmet_use_case || pack.unmet_use_case.trim().length < 40) {
+    issues.push("unmet use case must be explicit");
+  }
+  if ((pack.scope?.include ?? []).length === 0 || (pack.scope?.exclude ?? []).length === 0) {
+    issues.push("scope must include include and exclude boundaries");
+  }
+  if ((pack.quality_checks ?? []).length < 2) {
+    issues.push("quality checks must include at least two concrete checks");
+  }
+  if ((pack.workflows ?? []).length === 0 && (pack.commands ?? []).length === 0) {
+    issues.push("pack must reference at least one workflow or command");
+  }
+  if ((pack.validators ?? []).length === 0) {
+    issues.push("pack must reference at least one validator");
+  }
+  if (!pack.review_gates?.notes || pack.review_gates.notes.trim().length < 20) {
+    issues.push("review gate notes must be specific");
+  }
+  if (pack.review_gates?.human_review_required_for_sensitive_outputs !== true) {
+    issues.push("sensitive outputs must require human review");
+  }
+  if (textFields.some((value) => PLACEHOLDER_PATTERN.test(value))) {
+    issues.push("placeholder language must be removed");
+  }
+
+  if (issues.length === 0) {
+    messages.push({ status: "pass", path: packPath, message: "pack quality gates passed" });
+    return;
+  }
+
+  messages.push({
+    status: failOrWarn,
+    path: packPath,
+    message: `pack quality gates need attention: ${issues.join("; ")}`
+  });
+}
+
+async function validatePackReferenceList(
+  workspace: string,
+  packPath: string,
+  kind: string,
+  ids: string[] | undefined,
+  candidatesFor: (id: string) => string[],
+  messages: ValidationMessage[]
+): Promise<void> {
+  for (const id of ids ?? []) {
+    const candidates = candidatesFor(id);
+    const found = await pathExistsAny(workspace, candidates);
+    messages.push({
+      status: found ? "pass" : "fail",
+      path: packPath,
+      message: found ? `pack ${kind} reference resolved: ${id}` : `pack ${kind} reference missing: ${id}`
+    });
+  }
+}
+
+async function pathExistsAny(workspace: string, candidates: string[]): Promise<boolean> {
+  for (const candidate of candidates) {
+    if (await exists(workspacePath(workspace, candidate))) {
+      return true;
+    }
+  }
+  return false;
+}
+
+async function runArtifactValidation(workspace: string, messages: ValidationMessage[]): Promise<void> {
+  await scanArtifactDir(workspace, "cubby/outputs", messages);
+  await scanArtifactDir(workspace, "cubby/exports", messages);
+}
+
+async function scanArtifactDir(workspace: string, relativeDir: string, messages: ValidationMessage[]): Promise<void> {
+  const absoluteDir = workspacePath(workspace, relativeDir);
+  if (!(await exists(absoluteDir))) {
+    return;
+  }
+  const files = (await listFilesRecursive(absoluteDir)).filter((file) => [".md", ".txt", ".yaml", ".yml", ".csv"].includes(path.extname(file).toLowerCase()));
+  if (files.length === 0) {
+    messages.push({ status: "pass", path: relativeDir, message: "artifact validation found no files" });
+    return;
+  }
+
+  for (const file of files) {
+    const relativePath = path.relative(workspace, file).split(path.sep).join("/");
+    const content = await readText(file);
+    if (content === undefined) {
+      continue;
+    }
+    const findings = findSensitivePatterns(content);
+    messages.push({
+      status: findings.length > 0 ? "warn" : "pass",
+      path: relativePath,
+      message: findings.length > 0 ? `sensitive-pattern scan found ${findings.length} finding(s)` : "sensitive-pattern scan passed"
+    });
   }
 }
 

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cubby Workflow Pack",
+  "type": "object",
+  "required": ["id", "name", "description", "unmet_use_case", "status", "scope", "quality_checks", "review_gates"],
+  "additionalProperties": true,
+  "properties": {
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "unmet_use_case": { "type": "string" },
+    "status": { "enum": ["draft", "active", "deprecated"] },
+    "scope": {
+      "type": "object",
+      "required": ["include", "exclude"],
+      "additionalProperties": true,
+      "properties": {
+        "include": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "exclude": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+      }
+    },
+    "workflows": { "type": "array", "items": { "type": "string" } },
+    "commands": { "type": "array", "items": { "type": "string" } },
+    "agents": { "type": "array", "items": { "type": "string" } },
+    "templates": { "type": "array", "items": { "type": "string" } },
+    "validators": { "type": "array", "items": { "type": "string" } },
+    "hooks": { "type": "array", "items": { "type": "string" } },
+    "tools": { "type": "array", "items": { "type": "string" } },
+    "skills": { "type": "array", "items": { "type": "string" } },
+    "quality_checks": { "type": "array", "minItems": 2, "items": { "type": "string" } },
+    "review_gates": {
+      "type": "object",
+      "required": ["human_review_required_for_sensitive_outputs", "notes"],
+      "additionalProperties": true,
+      "properties": {
+        "human_review_required_for_sensitive_outputs": { "type": "boolean" },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}
