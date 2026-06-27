@@ -2,3 +2,17 @@ id: iep-goal-support
 name: IEP Goal Support
 risk_level: high
 phases: [intake, draft, validation, human_gate, handoff]
+subagents:
+  strategy: sequential
+  recommended:
+    - iep-support-specialist
+    - data-progress-specialist
+    - privacy-safeguards-reviewer
+  fanout_groups:
+    - phase: draft
+      agents:
+        - iep-support-specialist
+        - data-progress-specialist
+    - phase: validation
+      agents:
+        - privacy-safeguards-reviewer

@@ -1,5 +1,18 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Cubby Validation Result",
-  "type": "object"
+  "title": "Cubby Validation Definition",
+  "type": "object",
+  "required": ["id", "checks", "results"],
+  "additionalProperties": true,
+  "properties": {
+    "id": { "type": "string" },
+    "checks": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "results": {
+      "type": "array",
+      "items": { "enum": ["pass", "warn", "fail"] }
+    }
+  }
 }

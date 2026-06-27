@@ -11,6 +11,7 @@ Build a portable, provider-independent AI framework that can be installed into a
 Cubby should install a structured workspace containing:
 
 * Shared AI agent definitions
+* Subagent orchestration protocols for spawning, fan-out, fan-in, and synthesis
 * Reusable workflow protocols
 * Command/skill files
 * Rules and guardrails
@@ -49,6 +50,8 @@ Design Principles
 3. Specialists over monolith
     * A main orchestrator coordinates focused specialist agents.
     * Specialists should have narrow responsibilities and clear boundaries.
+    * Specialist work should run as explicit subagent calls when the adapter supports it.
+    * Fan-out/fan-in should use bounded task packets, recorded inputs/outputs, and orchestrator-owned synthesis.
 4. Human gates
     * Sensitive workflows require review checkpoints.
     * Parent/family communication, IEP-adjacent output, behavior-related output, data interpretation, and student-specific recommendations must be gated.
@@ -69,6 +72,7 @@ Design Principles
     * Distinguish observed data, teacher-provided facts, and AI-generated suggestions.
 10. Rich performance library
     * Cubby should include a broad, reusable library of hooks, extensions, tools, skills, validators, templates, schemas, and workflow assets.
+    * The library should include subagent orchestration protocols so high-value specialist work can be spawned, fanned out, reviewed, and synthesized consistently.
     * The library should make agent work more reliable by giving agents proven structures instead of relying on one-off prompting.
     * Performance features must remain inspectable, provider-neutral at the source level, and bounded by teacher authority, privacy, and human-review gates.
 
@@ -163,12 +167,13 @@ Implement the following:
 5. Local state schema
 6. Orchestrator definition
 7. Initial specialist agents
-8. Initial commands
-9. Initial workflow protocols
-10. Initial templates
-11. Validation gates
-12. Example installed workspace
-13. Documentation
+8. Initial subagent orchestration protocols
+9. Initial commands
+10. Initial workflow protocols
+11. Initial templates
+12. Validation gates
+13. Example installed workspace
+14. Documentation
 
 Do not start with Google Docs, Microsoft 365, Canvas, Schoology, or live integrations. Those should be adapter extensions after the local framework works.
 
@@ -220,6 +225,10 @@ cubby/
       iep-goal-support.yaml
       data-tracker.yaml
       behavior-routine.yaml
+    subagents/
+      README.md
+      orchestration.md
+      task-packet.md
     commands/
       lesson-plan.md
       lesson-pack.md
@@ -328,6 +337,21 @@ my-classroom-workspace/
   cubby/
     config.yaml
     manifest.yaml
+    framework/
+      adapters/
+      agents/
+      commands/
+      extensions/
+      hooks/
+      profiles/
+      rules/
+      schemas/
+      skills/
+      subagents/
+      templates/
+      tools/
+      validators/
+      workflows/
     state/
       current-task.yaml
       history/
@@ -442,6 +466,13 @@ inputs:
 agents:
   orchestrator: "classroom-orchestrator"
   specialists_called: []
+subagents:
+  strategy: "none | sequential | parallel | fanout_fanin"
+  fanout:
+    status: "not_started | in_progress | complete"
+    requested: []
+    completed: []
+  calls: []
 decisions: []
 blockers: []
 validation:
@@ -474,7 +505,9 @@ The orchestrator is the main coordinator. It should:
 * Select the correct workflow.
 * Load local state.
 * Determine risk level.
-* Route tasks to specialist agents.
+* Route tasks to specialist agents as bounded subagent calls.
+* Spawn sequential or parallel subagents when the workflow benefits from focused specialist work.
+* Fan out independent specialist tasks and fan results back into a single orchestrator-owned synthesis.
 * Maintain the current task file.
 * Enforce review gates.
 * Synthesize specialist outputs.
@@ -1655,6 +1688,11 @@ npm run build
 npm test
 node dist/cli/index.js init --profile k5-special-ed --adapter codex --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js validate --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js status --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js resume --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js handoff --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js manifest --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js upgrade --workspace ./examples/k5-special-ed-workspace --dry-run
 
 Also verify:
 

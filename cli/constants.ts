@@ -12,6 +12,68 @@ export const SUPPORTED_PROFILES = [
   "interventionist"
 ] as const;
 
+export const PROFILE_DEFAULTS: Record<string, { agents: string[]; subagents: string[]; commands: string[] }> = {
+  "k5-general": {
+    agents: [
+      "classroom-orchestrator",
+      "lesson-architect",
+      "curriculum-alignment-specialist",
+      "differentiation-specialist",
+      "materials-designer",
+      "family-communication-specialist",
+      "privacy-safeguards-reviewer"
+    ],
+    subagents: [
+      "lesson-architect",
+      "curriculum-alignment-specialist",
+      "differentiation-specialist",
+      "materials-designer",
+      "family-communication-specialist",
+      "privacy-safeguards-reviewer"
+    ],
+    commands: ["lesson-plan", "lesson-pack", "parent-email", "sub-plan", "data-tracker", "status", "resume", "handoff", "manifest", "upgrade"]
+  },
+  "k5-special-ed": {
+    agents: [
+      "classroom-orchestrator",
+      "lesson-architect",
+      "differentiation-specialist",
+      "iep-support-specialist",
+      "behavior-support-specialist",
+      "data-progress-specialist",
+      "family-communication-specialist",
+      "privacy-safeguards-reviewer",
+      "accessibility-language-reviewer"
+    ],
+    subagents: [
+      "lesson-architect",
+      "differentiation-specialist",
+      "iep-support-specialist",
+      "behavior-support-specialist",
+      "data-progress-specialist",
+      "family-communication-specialist",
+      "privacy-safeguards-reviewer",
+      "accessibility-language-reviewer"
+    ],
+    commands: ["lesson-plan", "lesson-pack", "accommodation-check", "iep-goal-support", "data-tracker", "behavior-routine", "parent-email", "sub-plan", "status", "resume", "handoff", "manifest", "upgrade"]
+  },
+  "instructional-coach": {
+    agents: ["classroom-orchestrator", "lesson-architect", "curriculum-alignment-specialist", "accessibility-language-reviewer", "admin-lens-reviewer"],
+    subagents: ["lesson-architect", "curriculum-alignment-specialist", "accessibility-language-reviewer", "admin-lens-reviewer"],
+    commands: ["lesson-plan", "lesson-pack", "data-tracker"]
+  },
+  "bcba-support": {
+    agents: ["classroom-orchestrator", "behavior-support-specialist", "data-progress-specialist", "privacy-safeguards-reviewer", "family-communication-specialist", "admin-lens-reviewer"],
+    subagents: ["behavior-support-specialist", "data-progress-specialist", "privacy-safeguards-reviewer", "family-communication-specialist", "admin-lens-reviewer"],
+    commands: ["behavior-routine", "data-tracker", "parent-email"]
+  },
+  interventionist: {
+    agents: ["classroom-orchestrator", "lesson-architect", "differentiation-specialist", "data-progress-specialist", "materials-designer", "privacy-safeguards-reviewer"],
+    subagents: ["lesson-architect", "differentiation-specialist", "data-progress-specialist", "materials-designer", "privacy-safeguards-reviewer"],
+    commands: ["lesson-plan", "data-tracker", "parent-email"]
+  }
+};
+
 export const USER_OWNED_DIRS = [
   "cubby/local/",
   "cubby/templates/custom/",
@@ -21,6 +83,7 @@ export const USER_OWNED_DIRS = [
 ];
 
 export const WORKSPACE_DIRS = [
+  "cubby/framework",
   "cubby/state/history",
   "cubby/local/standards",
   "cubby/local/accommodations",
@@ -44,6 +107,23 @@ export const WORKSPACE_DIRS = [
   "cubby/logs/decisions",
   "cubby/logs/validations",
   "cubby/logs/handoffs"
+];
+
+export const FRAMEWORK_SOURCE_DIRS = [
+  "src/adapters",
+  "src/agents",
+  "src/commands",
+  "src/extensions",
+  "src/hooks",
+  "src/profiles",
+  "src/rules",
+  "src/schemas",
+  "src/skills",
+  "src/subagents",
+  "src/templates",
+  "src/tools",
+  "src/validators",
+  "src/workflows"
 ];
 
 export const LOCAL_FILES = [

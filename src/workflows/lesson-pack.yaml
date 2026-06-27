@@ -1,4 +1,54 @@
 id: lesson-pack
 name: Lesson Pack
+description: Create a bundle with lesson plan, slide outline, handout, exit ticket, and differentiation matrix.
 risk_level: low
-phases: [intake, draft, review, validation, handoff]
+phases:
+  - intake
+  - context
+  - plan
+  - materials
+  - review
+  - validation
+  - handoff
+subagents:
+  strategy: fanout_fanin
+  recommended:
+    - lesson-architect
+    - curriculum-alignment-specialist
+    - differentiation-specialist
+    - materials-designer
+    - privacy-safeguards-reviewer
+  fanout_groups:
+    - phase: plan
+      agents:
+        - lesson-architect
+        - curriculum-alignment-specialist
+        - differentiation-specialist
+    - phase: materials
+      agents:
+        - materials-designer
+        - accessibility-language-reviewer
+    - phase: review
+      agents:
+        - privacy-safeguards-reviewer
+outputs:
+  - type: markdown
+    path_template: cubby/outputs/lesson-packs/{{task_slug}}/lesson-plan.md
+  - type: markdown
+    path_template: cubby/outputs/lesson-packs/{{task_slug}}/slides-outline.md
+  - type: markdown
+    path_template: cubby/outputs/lesson-packs/{{task_slug}}/student-handout.md
+  - type: markdown
+    path_template: cubby/outputs/lesson-packs/{{task_slug}}/exit-ticket.md
+  - type: markdown
+    path_template: cubby/outputs/lesson-packs/{{task_slug}}/differentiation-matrix.md
+gates:
+  human_review_required: false
+  validators:
+    - privacy-check
+    - accessibility-check
+    - alignment-check
+autonomy:
+  guided: draft_with_checkpoints
+  managed: draft_validate_handoff
+  autonomous: low_risk_only

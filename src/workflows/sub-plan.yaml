@@ -1,4 +1,40 @@
 id: sub-plan
 name: Sub Plan
+description: Create a substitute plan with schedule, routines, activities, materials, and fallback supports.
 risk_level: medium
-phases: [intake, draft, validation, handoff]
+phases:
+  - intake
+  - draft
+  - review
+  - validation
+  - handoff
+subagents:
+  strategy: fanout_fanin
+  recommended:
+    - sub-plan-specialist
+    - materials-designer
+    - behavior-support-specialist
+    - privacy-safeguards-reviewer
+  fanout_groups:
+    - phase: draft
+      agents:
+        - sub-plan-specialist
+        - materials-designer
+        - behavior-support-specialist
+    - phase: review
+      agents:
+        - privacy-safeguards-reviewer
+outputs:
+  - type: markdown
+    path_template: cubby/outputs/sub-plans/{{task_slug}}/sub-plan.md
+  - type: markdown
+    path_template: cubby/outputs/sub-plans/{{task_slug}}/materials-checklist.md
+gates:
+  human_review_required: false
+  validators:
+    - privacy-check
+    - accessibility-check
+autonomy:
+  guided: draft_with_checkpoints
+  managed: draft_validate_handoff
+  autonomous: student_neutral_only

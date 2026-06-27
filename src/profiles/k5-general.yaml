@@ -1,6 +1,13 @@
 id: k5-general
 default_agents:
   - classroom-orchestrator
+default_subagents:
+  - lesson-architect
+  - curriculum-alignment-specialist
+  - differentiation-specialist
+  - materials-designer
+  - family-communication-specialist
+  - privacy-safeguards-reviewer
 default_commands:
   - lesson-plan
   - parent-email

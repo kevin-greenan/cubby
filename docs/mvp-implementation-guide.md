@@ -13,22 +13,25 @@ MVP success means:
 * `cubby validate` reports workspace health.
 * Repeat init is safe and inspectable.
 * Generated files are tracked in `cubby/manifest.yaml`.
+* The managed framework library is installed under `cubby/framework/`.
+* Subagent orchestration guidance is installed under `cubby/framework/subagents/`.
 * Local customization, outputs, exports, and logs are never overwritten.
-* The source tree leaves clear, provider-neutral places for hooks, extensions, tools, skills, validators, and future library packs.
+* The source tree leaves clear, provider-neutral places for subagents, hooks, extensions, tools, skills, validators, and future library packs.
 
 ## Recommended Build Order
 
 1. Create the TypeScript project shell.
 2. Add CLI argument parsing for `init` and `validate`.
 3. Add static source content needed for the Codex adapter.
-4. Add source folders and representative starter files for agents, workflows, commands, rules, templates, validators, hooks, extensions, tools, skills, profiles, and adapters.
-5. Implement deterministic directory creation.
-6. Implement managed-file writing with headers.
-7. Implement manifest creation with hashes.
-8. Implement repeat-init handling for unchanged, changed, and missing managed files.
-9. Implement workspace validation.
-10. Add tests for init, validate, manifest, and preservation behavior.
-11. Add README quickstart after the commands actually work.
+4. Add source folders and representative starter files for agents, subagents, workflows, commands, rules, templates, validators, hooks, extensions, tools, skills, profiles, and adapters.
+5. Install the managed framework library into `cubby/framework/`.
+6. Implement deterministic directory creation.
+7. Implement managed-file writing with headers.
+8. Implement manifest creation with hashes.
+9. Implement repeat-init handling for unchanged, changed, and missing managed files.
+10. Implement workspace validation.
+11. Add tests for init, validate, manifest, and preservation behavior.
+12. Add README quickstart after the commands actually work.
 
 ## Keep Scope Narrow
 
@@ -44,7 +47,7 @@ Do not implement these in the first MVP pass:
 
 Scaffold future concepts only when they support the first install/validate loop.
 
-Do create clear source locations for Cubby's performance library. Hooks, extensions, tools, and skills are first-class framework concepts, even when their first MVP representation is declarative or documented rather than fully executable.
+Do create clear source locations for Cubby's performance library. Subagents, hooks, extensions, tools, and skills are first-class framework concepts, even when their first MVP representation is declarative or documented rather than fully executable.
 
 ## First Useful CLI
 
@@ -53,6 +56,11 @@ The first CLI should support:
 ```text
 cubby init --profile k5-special-ed --adapter codex --workspace ./examples/k5-special-ed-workspace
 cubby validate --workspace ./examples/k5-special-ed-workspace
+cubby status --workspace ./examples/k5-special-ed-workspace
+cubby resume --workspace ./examples/k5-special-ed-workspace
+cubby handoff --workspace ./examples/k5-special-ed-workspace
+cubby manifest --workspace ./examples/k5-special-ed-workspace
+cubby upgrade --workspace ./examples/k5-special-ed-workspace --dry-run
 ```
 
 Useful output should report:

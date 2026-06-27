@@ -3,6 +3,15 @@ default_agents:
   - classroom-orchestrator
   - differentiation-specialist
   - iep-support-specialist
+default_subagents:
+  - lesson-architect
+  - differentiation-specialist
+  - iep-support-specialist
+  - behavior-support-specialist
+  - data-progress-specialist
+  - family-communication-specialist
+  - privacy-safeguards-reviewer
+  - accessibility-language-reviewer
 default_commands:
   - lesson-plan
   - accommodation-check

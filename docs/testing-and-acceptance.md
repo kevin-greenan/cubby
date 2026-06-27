@@ -22,6 +22,11 @@ npm run build
 npm test
 node dist/cli/index.js init --profile k5-special-ed --adapter codex --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js validate --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js status --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js resume --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js handoff --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js manifest --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js upgrade --workspace ./examples/k5-special-ed-workspace --dry-run
 ```
 
 If a script is not implemented yet, report that plainly and add it before claiming MVP readiness.
@@ -33,15 +38,20 @@ Add tests for:
 * required project docs and local Markdown links
 * CLI argument parsing
 * workspace initialization
-* source folders for hooks, extensions, tools, skills, validators, and adapters
+* source folders for subagents, hooks, extensions, tools, skills, validators, and adapters
 * managed-file header insertion
 * manifest creation
 * current task schema validation
+* subagent strategy and call-state validation
 * repeat init safety
 * local customization preservation
 * output/export/log preservation
 * malformed workspace validation failures
-* upgrade dry-run behavior when implemented
+* status output
+* resume output
+* handoff log generation
+* manifest inspection
+* upgrade dry-run behavior
 
 ## Required Behavioral Tests
 
@@ -53,12 +63,20 @@ The test suite should cover:
 4. `init` creates `cubby/config.yaml`.
 5. `init` creates `cubby/manifest.yaml`.
 6. `init` creates `cubby/state/current-task.yaml`.
-7. `validate` passes on a fresh workspace.
-8. `validate` fails on malformed `current-task.yaml`.
-9. Repeat `init` does not overwrite `cubby/local/teacher-preferences.yaml`.
-10. Repeat `init` does not modify files under `cubby/outputs/`, `cubby/exports/`, or `cubby/logs/`.
-11. Modified managed files are preserved and reported as `preserved-local-edit`.
-12. Manifest entries include path, source, managed version, hash algorithm, content hash, and local edit policy.
+7. `init` creates managed framework library files under `cubby/framework/`.
+8. `init` creates subagent protocol files under `cubby/framework/subagents/`.
+9. `validate` passes on a fresh workspace.
+10. `validate` fails on malformed `current-task.yaml`.
+11. Repeat `init` does not overwrite `cubby/local/teacher-preferences.yaml`.
+12. Repeat `init` does not modify files under `cubby/outputs/`, `cubby/exports/`, or `cubby/logs/`.
+13. Modified managed files are preserved and reported as `preserved-local-edit`.
+14. Modified managed framework library files are preserved and reported as `preserved-local-edit`.
+15. Manifest entries include path, source, managed version, hash algorithm, content hash, and local edit policy.
+16. `status` summarizes current task, review state, outputs, and managed-file count.
+17. `resume` prints next workflow instruction from current task state.
+18. `handoff` writes a handoff log under `cubby/logs/handoffs/`.
+19. `manifest` summarizes managed files, missing files, and local edits.
+20. `upgrade --dry-run` reports managed-file outcomes without modifying files.
 
 ## Acceptance Standard
 

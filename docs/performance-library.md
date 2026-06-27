@@ -2,13 +2,14 @@
 
 Cubby should become a high-performing framework because it ships with a rich, composable library of workflow assets.
 
-The core framework is not only agents and commands. It should include hooks, extensions, tools, skills, validators, schemas, templates, profiles, adapter mappings, review gates, and reusable classroom workflow patterns.
+The core framework is not only agents and commands. It should include subagent orchestration protocols, hooks, extensions, tools, skills, validators, schemas, templates, profiles, adapter mappings, review gates, and reusable classroom workflow patterns.
 
 ## Library Families
 
 Cubby's shared source should grow across these families:
 
 * agents: focused specialist role definitions
+* subagents: protocols for bounded specialist spawning, fan-out, fan-in, and orchestrator synthesis
 * workflows: phase-based protocols for common educator tasks
 * commands: teacher-friendly entrypoints into workflows
 * rules: durable safety, tone, privacy, and workflow guidance
@@ -29,6 +30,7 @@ High performance means:
 
 * the right workflow is easy to select
 * context is loaded consistently
+* specialist work can be spawned, fanned out, and synthesized without losing reviewability
 * outputs use proven templates
 * sensitive tasks trigger review gates
 * validation is visible and repeatable
@@ -45,6 +47,7 @@ For MVP:
 * hooks may remain declarative YAML and documentation
 * tools may be limited to CLI commands and quality checks
 * skills may be represented as command and agent Markdown until platform-specific skill packaging is defined
+* subagents may be represented as provider-neutral orchestration docs and task-packet conventions until adapter-native fan-out is available
 * extensions may be represented by a documented source folder and future contract
 * validators may be declarative definitions plus workspace validation logic
 
@@ -55,6 +58,7 @@ After the install/validate loop works, Cubby should expand the library aggressiv
 Extension packs should be additive and reviewable. A pack may include:
 
 * agents
+* subagents
 * commands
 * workflows
 * templates

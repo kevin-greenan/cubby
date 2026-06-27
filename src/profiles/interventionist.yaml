@@ -2,6 +2,11 @@ id: interventionist
 default_agents:
   - classroom-orchestrator
   - data-progress-specialist
+default_subagents:
+  - lesson-architect
+  - differentiation-specialist
+  - data-progress-specialist
+  - materials-designer
 default_commands:
   - lesson-plan
   - data-tracker

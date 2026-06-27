@@ -36,3 +36,24 @@ export interface InitOptions {
 export interface ValidateOptions {
   workspace: string;
 }
+
+export interface StatusOptions {
+  workspace: string;
+}
+
+export interface UpgradeOptions {
+  workspace: string;
+  dryRun: boolean;
+}
+
+export interface ResumeOptions {
+  workspace: string;
+}
+
+export interface HandoffOptions {
+  workspace: string;
+}
+
+export interface ManifestOptions {
+  workspace: string;
+}

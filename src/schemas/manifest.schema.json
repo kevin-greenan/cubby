@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cubby Manifest",
+  "type": "object",
+  "required": ["cubby_version", "adapter", "profile", "created_at", "managed_files", "local_preserved_paths"],
+  "additionalProperties": false,
+  "properties": {
+    "cubby_version": { "type": "string" },
+    "adapter": {
+      "type": "object",
+      "required": ["name", "version"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    },
+    "profile": { "type": "string" },
+    "created_at": { "type": "string" },
+    "managed_files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "source", "managed_version", "hash_algorithm", "content_hash", "local_edits_policy"],
+        "additionalProperties": false,
+        "properties": {
+          "path": { "type": "string" },
+          "source": { "type": "string" },
+          "managed_version": { "type": "string" },
+          "hash_algorithm": { "const": "sha256" },
+          "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "local_edits_policy": { "const": "preserve" }
+        }
+      }
+    },
+    "local_preserved_paths": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

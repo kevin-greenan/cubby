@@ -1,5 +1,43 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Cubby Workflow",
-  "type": "object"
+  "type": "object",
+  "required": ["id", "name", "risk_level", "phases"],
+  "additionalProperties": true,
+  "properties": {
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "risk_level": { "enum": ["low", "medium", "high"] },
+    "phases": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" }
+    },
+    "subagents": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "strategy": { "enum": ["none", "sequential", "parallel", "fanout_fanin"] },
+        "recommended": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "fanout_groups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["phase", "agents"],
+            "additionalProperties": true,
+            "properties": {
+              "phase": { "type": "string" },
+              "agents": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }

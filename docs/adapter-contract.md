@@ -20,6 +20,7 @@ Provider-neutral content belongs in:
 src/agents/
 src/workflows/
 src/commands/
+src/subagents/
 src/rules/
 src/templates/
 src/schemas/
@@ -56,6 +57,7 @@ An adapter may:
 * Render provider-specific instruction files.
 * Map shared commands into provider-readable guidance.
 * Map shared skills and tools into provider-supported formats when available.
+* Map subagent definitions into provider-supported multi-agent, tool-call, skill, or thread conventions when available.
 * Summarize relevant rules and validation gates.
 * Define output conventions expected by the provider.
 * Include adapter-specific installation metadata.
@@ -75,6 +77,7 @@ Before adding a future adapter, define:
 * required source templates
 * install-map behavior
 * skill and tool mapping behavior
+* subagent spawning and fan-in behavior
 * validation expectations
 * managed-file metadata
 * tests proving install output

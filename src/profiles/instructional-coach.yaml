@@ -2,6 +2,11 @@ id: instructional-coach
 default_agents:
   - classroom-orchestrator
   - curriculum-alignment-specialist
+default_subagents:
+  - lesson-architect
+  - curriculum-alignment-specialist
+  - accessibility-language-reviewer
+  - admin-lens-reviewer
 default_commands:
   - lesson-plan
   - data-tracker
