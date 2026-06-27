@@ -167,7 +167,7 @@ function buildCurrentTask(
     },
     next_action: {
       mode: "continue",
-      message: `Load cubby/framework/commands/${options.workflowId}.md and cubby/framework/workflows/${options.workflowId}.yaml, complete the ${options.phase} phase, then update cubby/state/current-task.yaml.`
+      message: `Load cubby/framework/commands/${options.workflowId}.md and cubby/framework/workflows/${options.workflowId}.yaml, complete the ${options.phase} phase, then run cubby advance.`
     }
   };
 }

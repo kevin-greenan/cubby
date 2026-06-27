@@ -145,7 +145,7 @@ function messageForPhase(workflowId: string, phase: string, status: string, revi
     return "Create or update the handoff with assumptions, outputs, validation state, and next steps.";
   }
   const reviewNote = reviewRequired ? " Keep required human review before export or final use." : "";
-  return `Load cubby/framework/commands/${workflowId}.md and cubby/framework/workflows/${workflowId}.yaml, complete the ${phase} phase, then update cubby/state/current-task.yaml.${reviewNote}`;
+  return `Load cubby/framework/commands/${workflowId}.md and cubby/framework/workflows/${workflowId}.yaml, complete the ${phase} phase, then run cubby advance.${reviewNote}`;
 }
 
 function printResult(workspace: string, currentTask: CurrentTask): void {

@@ -273,6 +273,7 @@ test("start initializes current task from a workflow", async () => {
     assert.equal(currentTask.outputs.drafts[0].path, "cubby/outputs/lesson-packs/main-idea-lesson/lesson-plan.md");
     assert.equal(currentTask.validation.human_review_required.required, false);
     assert.match(currentTask.next_action.message, /cubby\/framework\/commands\/lesson-plan.md/);
+    assert.match(currentTask.next_action.message, /run cubby advance/);
 
     await assert.rejects(runCli(["start", "parent-email", "--workspace", workspace]));
     await runCli(["start", "parent-email", "--workspace", workspace, "--title", "Conference Follow Up", "--force"]);
@@ -280,7 +281,7 @@ test("start initializes current task from a workflow", async () => {
     assert.equal(sensitiveTask.validation.human_review_required.required, true);
     assert.equal(sensitiveTask.next_action.mode, "continue");
     const resume = await runCli(["resume", "--workspace", workspace]);
-    assert.match(resume.stdout, /Instruction: load the command and workflow files/);
+    assert.match(resume.stdout, /then run cubby advance/);
   });
 });
 
@@ -319,6 +320,26 @@ test("advance moves current task through workflow phases", async () => {
 
     await assert.rejects(runCli(["advance", "--workspace", workspace, "--phase", "not-a-phase"]));
     await assert.rejects(runCli(["advance", "--workspace", workspace, "--status", "invalid"]));
+  });
+});
+
+test("advance pauses sensitive workflows at human review gates", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    await runCli(["start", "parent-email", "--workspace", workspace, "--title", "Conference Follow Up"]);
+
+    const result = await runCli(["advance", "--workspace", workspace, "--phase", "human_gate", "--complete-subagents"]);
+
+    assert.match(result.stdout, /Status: waiting_for_review/);
+    assert.match(result.stdout, /Next action: pause_for_review/);
+    const currentTask = YAML.parse(await readFile(path.join(workspace, "cubby/state/current-task.yaml"), "utf8"));
+    assert.equal(currentTask.task.phase, "human_gate");
+    assert.equal(currentTask.task.status, "waiting_for_review");
+    assert.equal(currentTask.validation.human_review_required.required, true);
+    assert.equal(currentTask.next_action.mode, "pause_for_review");
+
+    const resume = await runCli(["resume", "--workspace", workspace]);
+    assert.match(resume.stdout, /pause for human review/);
   });
 });
 
