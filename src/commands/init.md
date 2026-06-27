@@ -21,7 +21,7 @@ Gates:
 
 * Never overwrite user-owned files under `cubby/local/`, `cubby/templates/custom/`, `cubby/outputs/`, `cubby/exports/`, or `cubby/logs/`.
 * Preserve locally edited managed files on repeat init.
-* Use the generated workspace `AGENTS.md`, not the repository-development `AGENTS.md`.
+* Use the generated workspace `AGENTS.md` rendered from the Codex adapter template.
 
 Example usage:
 

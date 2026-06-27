@@ -62,7 +62,7 @@ npm run demo:lifecycle
 
 ## Development Notes
 
-Use `PLAN.md` as the product source of truth. Use `docs/` for release-facing contracts that define the install loop, managed-file behavior, adapter boundary, command surface, walkthroughs, and test expectations.
+Use `docs/` as the release-facing source of truth for the install loop, managed-file behavior, adapter boundary, command surface, walkthroughs, and test expectations.
 
 Start with [docs/performance-library.md](docs/performance-library.md) when adding hooks, extensions, tools, skills, or reusable workflow packs.
 
@@ -70,4 +70,4 @@ Use [docs/walkthrough-lifecycle.md](docs/walkthrough-lifecycle.md) for the full 
 
 See [examples/sample-outputs](examples/sample-outputs) for small, fictional examples of generated artifacts, validation summaries, handoffs, and review-gated family communication.
 
-The root `AGENTS.md` is for repository development only. Installed workspaces receive a generated `AGENTS.md` rendered from the Codex adapter template.
+Installed workspaces receive a generated `AGENTS.md` rendered from the Codex adapter template. The repository root does not carry a development-only `AGENTS.md` in release-ready branches.

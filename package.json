@@ -12,7 +12,6 @@
     "examples/sample-outputs/",
     "src/",
     "LICENSE",
-    "PLAN.md",
     "README.md"
   ],
   "scripts": {

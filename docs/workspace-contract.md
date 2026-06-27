@@ -6,7 +6,7 @@ This contract describes the workspace created by `cubby init`.
 
 The repository contains Cubby source files and CLI code. An installed workspace is generated for an educator or education-support user.
 
-The repository root `AGENTS.md` is for developing Cubby. It must not be copied into installed workspaces.
+The repository root does not ship a development-only `AGENTS.md` in release-ready branches.
 
 Installed workspaces should receive a generated `AGENTS.md` rendered from:
 

@@ -18,10 +18,8 @@ ROOT = Path(__file__).resolve().parents[1]
 REQUIRED_FILES = [
     ".github/workflows/quality.yml",
     ".gitignore",
-    "AGENTS.md",
     "LICENSE",
     "README.md",
-    "PLAN.md",
     "package-lock.json",
     "package.json",
     "tsconfig.json",
@@ -122,33 +120,29 @@ def check_local_links(errors: list[str]) -> None:
                 errors.append(f"{rel(path)}: broken local link: {target}")
 
 
-def check_agents_scope(errors: list[str]) -> None:
-    text = read("AGENTS.md")
-    required = [
-        "Repository Development Agent Guide",
-        "repository development only",
-        "not part of Cubby's generated teacher-workspace outputs",
-        "It remains named `AGENTS.md`",
-    ]
-    for phrase in required:
-        if phrase not in text:
-            errors.append(f"AGENTS.md must clarify repo-only scope: missing {phrase!r}")
-
-
-def check_plan_contracts(errors: list[str]) -> None:
-    plan = read("PLAN.md")
+def check_release_contracts(errors: list[str]) -> None:
+    docs = "\n".join(
+        read(path)
+        for path in [
+            "README.md",
+            "docs/workspace-contract.md",
+            "docs/manifest-and-managed-files.md",
+            "docs/performance-library.md",
+            "docs/testing-and-acceptance.md",
+        ]
+    )
     for status in STATUS_NAMES:
-        if status not in plan:
-            errors.append(f"PLAN.md missing managed-file status name: {status}")
+        if status not in docs:
+            errors.append(f"release docs missing managed-file status name: {status}")
     for path in USER_OWNED_PATHS:
-        if path not in plan:
-            errors.append(f"PLAN.md missing user-owned preservation path: {path}")
-    if "Root AGENTS.md is a repository-development guide" not in plan:
-        errors.append("PLAN.md must distinguish root AGENTS.md from generated workspace AGENTS.md")
-    if "docs/" not in plan:
-        errors.append("PLAN.md must mention implementation support docs")
-    if "subagent" not in plan.lower():
-        errors.append("PLAN.md must make subagent orchestration explicit")
+        if path not in docs:
+            errors.append(f"release docs missing user-owned preservation path: {path}")
+    if "generated `AGENTS.md`" not in docs:
+        errors.append("release docs must describe generated workspace AGENTS.md")
+    if "development-only `AGENTS.md`" not in docs:
+        errors.append("release docs must clarify there is no root development-only AGENTS.md")
+    if "subagent" not in docs.lower():
+        errors.append("release docs must make subagent orchestration explicit")
 
 
 def check_docs_index(errors: list[str]) -> None:
@@ -166,8 +160,7 @@ def main() -> int:
     check_required_files(errors)
     check_whitespace(errors)
     check_local_links(errors)
-    check_agents_scope(errors)
-    check_plan_contracts(errors)
+    check_release_contracts(errors)
     check_docs_index(errors)
 
     if errors:
