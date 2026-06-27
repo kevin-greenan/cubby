@@ -117,6 +117,7 @@ export const FRAMEWORK_SOURCE_DIRS = [
   "src/commands",
   "src/extensions",
   "src/hooks",
+  "src/packs",
   "src/profiles",
   "src/rules",
   "src/schemas",

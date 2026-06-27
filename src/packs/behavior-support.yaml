@@ -1,0 +1,30 @@
+id: behavior-support
+name: Behavior Support Pack
+description: Draft/review support for behavior routines, observation tools, replacement-skill practice, and fidelity checklists.
+status: active
+workflows:
+  - behavior-routine
+commands:
+  - behavior-routine
+agents:
+  - classroom-orchestrator
+  - behavior-support-specialist
+  - data-progress-specialist
+  - family-communication-specialist
+  - privacy-safeguards-reviewer
+templates:
+  - abc-data-sheet
+  - validation-summary
+  - handoff
+validators:
+  - behavior-support-check
+  - privacy-check
+hooks:
+  - validate
+tools:
+  - redact
+  - artifacts
+skills: []
+review_gates:
+  human_review_required_for_sensitive_outputs: true
+  notes: Behavior recommendations and interpretations remain drafts until reviewed by the responsible professional.

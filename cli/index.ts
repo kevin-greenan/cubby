@@ -131,6 +131,7 @@ Commands:
   upgrade --workspace <path> --dry-run
   scaffold workflow <name> [--root <repo-path>]
   scaffold agent <name> [--root <repo-path>]
+  scaffold pack <name> [--root <repo-path>]
 `);
 }
 

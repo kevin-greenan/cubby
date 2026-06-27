@@ -119,6 +119,7 @@ async function validateWithSchema(data: unknown, schemaRelativePath: string, tar
 
 async function validateFrameworkDefinitions(workspace: string, messages: ValidationMessage[]): Promise<void> {
   await validateYamlFiles(workspace, "cubby/framework/workflows", "src/schemas/workflow.schema.json", messages);
+  await validateYamlFiles(workspace, "cubby/framework/packs", "src/schemas/pack.schema.json", messages);
   await validateYamlFiles(workspace, "cubby/framework/profiles", "src/schemas/profile.schema.json", messages);
   await validateYamlFiles(workspace, "cubby/framework/validators", "src/schemas/validation-result.schema.json", messages);
 }

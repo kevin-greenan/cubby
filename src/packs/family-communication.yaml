@@ -1,0 +1,31 @@
+id: family-communication
+name: Family Communication Pack
+description: Family-facing drafts, plain-language communication, review checklists, and privacy-focused redaction support.
+status: active
+workflows:
+  - parent-email
+commands:
+  - parent-email
+agents:
+  - classroom-orchestrator
+  - family-communication-specialist
+  - privacy-safeguards-reviewer
+  - accessibility-language-reviewer
+  - admin-lens-reviewer
+templates:
+  - parent-email
+  - validation-summary
+  - handoff
+validators:
+  - family-communication-check
+  - accessibility-check
+  - privacy-check
+hooks:
+  - validate
+tools:
+  - redact
+  - artifacts
+skills: []
+review_gates:
+  human_review_required_for_sensitive_outputs: true
+  notes: Family communication drafts always require teacher review before use or export.

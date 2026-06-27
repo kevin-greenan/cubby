@@ -1,0 +1,35 @@
+id: special-education
+name: Special Education Pack
+description: Draft/review support for accommodations, IEP-adjacent planning, goal-aligned activities, and accessible language.
+status: active
+workflows:
+  - accommodation-check
+  - iep-goal-support
+commands:
+  - accommodation-check
+  - iep-goal-support
+agents:
+  - classroom-orchestrator
+  - iep-support-specialist
+  - differentiation-specialist
+  - data-progress-specialist
+  - accessibility-language-reviewer
+  - privacy-safeguards-reviewer
+templates:
+  - accommodation-check
+  - iep-goal-support
+  - validation-summary
+  - handoff
+validators:
+  - iep-support-check
+  - accessibility-check
+  - privacy-check
+hooks:
+  - validate
+tools:
+  - redact
+  - artifacts
+skills: []
+review_gates:
+  human_review_required_for_sensitive_outputs: true
+  notes: IEP-adjacent text and student-specific accommodation recommendations require qualified human review.

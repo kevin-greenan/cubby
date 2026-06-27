@@ -8,8 +8,8 @@ const VALID_NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export async function runScaffold(options: ScaffoldOptions): Promise<number> {
   const kind = options.kind;
   const name = options.name;
-  if (kind !== "workflow" && kind !== "agent") {
-    console.error("failed\tscaffold kind must be workflow or agent");
+  if (kind !== "workflow" && kind !== "agent" && kind !== "pack") {
+    console.error("failed\tscaffold kind must be workflow, agent, or pack");
     return 1;
   }
   if (!name || !VALID_NAME.test(name)) {
@@ -17,7 +17,7 @@ export async function runScaffold(options: ScaffoldOptions): Promise<number> {
     return 1;
   }
 
-  const target = kind === "workflow" ? `src/workflows/${name}.yaml` : `src/agents/${name}.md`;
+  const target = targetPath(kind, name);
   const root = path.resolve(options.root);
   const absoluteTarget = path.resolve(root, target);
   if (await exists(absoluteTarget)) {
@@ -25,11 +25,31 @@ export async function runScaffold(options: ScaffoldOptions): Promise<number> {
     return 1;
   }
 
-  await writeText(absoluteTarget, kind === "workflow" ? workflowContent(name) : agentContent(name));
+  await writeText(absoluteTarget, scaffoldContent(kind, name));
   console.log("Cubby scaffold created.");
   console.log(`Kind: ${kind}`);
   console.log(`Path: ${target}`);
   return 0;
+}
+
+function targetPath(kind: "workflow" | "agent" | "pack", name: string): string {
+  if (kind === "workflow") {
+    return `src/workflows/${name}.yaml`;
+  }
+  if (kind === "agent") {
+    return `src/agents/${name}.md`;
+  }
+  return `src/packs/${name}.yaml`;
+}
+
+function scaffoldContent(kind: "workflow" | "agent" | "pack", name: string): string {
+  if (kind === "workflow") {
+    return workflowContent(name);
+  }
+  if (kind === "agent") {
+    return agentContent(name);
+  }
+  return packContent(name);
 }
 
 function workflowContent(name: string): string {
@@ -84,6 +104,27 @@ function agentContent(name: string): string {
     "* Escalate parent communication, IEP-adjacent content, behavior-support recommendations, progress interpretation, and student-specific recommendations.",
     ""
   ].join("\n");
+}
+
+function packContent(name: string): string {
+  return YAML.stringify({
+    id: name,
+    name: titleize(name),
+    description: "Describe the workflow family this pack adds or extends.",
+    status: "draft",
+    workflows: [],
+    commands: [],
+    agents: [],
+    templates: [],
+    validators: ["privacy-check"],
+    hooks: [],
+    tools: [],
+    skills: [],
+    review_gates: {
+      human_review_required_for_sensitive_outputs: true,
+      notes: "Add pack-specific review requirements here."
+    }
+  });
 }
 
 function titleize(name: string): string {

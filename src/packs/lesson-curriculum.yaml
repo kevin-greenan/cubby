@@ -1,0 +1,41 @@
+id: lesson-curriculum
+name: Lesson And Curriculum Pack
+description: Core lesson planning, lesson-pack generation, curriculum alignment, and reusable classroom materials.
+status: active
+workflows:
+  - lesson-plan
+  - lesson-pack
+commands:
+  - lesson-plan
+  - lesson-pack
+agents:
+  - classroom-orchestrator
+  - lesson-architect
+  - curriculum-alignment-specialist
+  - differentiation-specialist
+  - materials-designer
+  - accessibility-language-reviewer
+  - privacy-safeguards-reviewer
+templates:
+  - lesson-plan
+  - lesson-pack/lesson-plan
+  - lesson-pack/slides-outline
+  - lesson-pack/student-handout
+  - lesson-pack/exit-ticket
+  - lesson-pack/differentiation-matrix
+  - validation-summary
+  - handoff
+validators:
+  - alignment-check
+  - accessibility-check
+  - privacy-check
+hooks:
+  - validate
+  - export
+tools:
+  - artifacts
+  - export
+skills: []
+review_gates:
+  human_review_required_for_sensitive_outputs: true
+  notes: Generic lessons may export after validation; accommodation-aware or student-specific materials require review.

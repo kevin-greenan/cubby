@@ -1,0 +1,27 @@
+id: data-progress
+name: Data And Progress Pack
+description: Data trackers, progress-monitoring sheets, observation summaries, and chart-ready local artifact support.
+status: active
+workflows:
+  - data-tracker
+commands:
+  - data-tracker
+agents:
+  - classroom-orchestrator
+  - data-progress-specialist
+  - privacy-safeguards-reviewer
+templates:
+  - progress-monitoring-sheet
+  - validation-summary
+  - handoff
+validators:
+  - privacy-check
+hooks:
+  - validate
+tools:
+  - artifacts
+  - redact
+skills: []
+review_gates:
+  human_review_required_for_sensitive_outputs: true
+  notes: Data summaries must distinguish observed data from interpretation and avoid unnecessary identifiers.

@@ -26,6 +26,7 @@ test("init creates a valid Codex workspace", async () => {
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/redact.md"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/scaffold.md"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/workflows/lesson-plan.yaml"), "utf8"), /managed-by: cubby/);
+    assert.match(await readFile(path.join(workspace, "cubby/framework/packs/lesson-curriculum.yaml"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/skills/README.md"), "utf8"), /Skills/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/subagents/README.md"), "utf8"), /Subagents/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/templates/validation-summary.md"), "utf8"), /Validation Summary/);
@@ -284,14 +285,18 @@ test("scaffold creates workflow and agent starters without overwriting", async (
   try {
     await mkdir(path.join(root, "src/workflows"), { recursive: true });
     await mkdir(path.join(root, "src/agents"), { recursive: true });
+    await mkdir(path.join(root, "src/packs"), { recursive: true });
 
     const workflow = await runCli(["scaffold", "workflow", "weekly-plan", "--root", root]);
     const agent = await runCli(["scaffold", "agent", "math-specialist", "--root", root]);
+    const pack = await runCli(["scaffold", "pack", "operations-pack", "--root", root]);
 
     assert.match(workflow.stdout, /src\/workflows\/weekly-plan.yaml/);
     assert.match(agent.stdout, /src\/agents\/math-specialist.md/);
+    assert.match(pack.stdout, /src\/packs\/operations-pack.yaml/);
     assert.match(await readFile(path.join(root, "src/workflows/weekly-plan.yaml"), "utf8"), /id: weekly-plan/);
     assert.match(await readFile(path.join(root, "src/agents/math-specialist.md"), "utf8"), /# Math Specialist/);
+    assert.match(await readFile(path.join(root, "src/packs/operations-pack.yaml"), "utf8"), /id: operations-pack/);
 
     await assert.rejects(runCli(["scaffold", "workflow", "weekly-plan", "--root", root]));
   } finally {

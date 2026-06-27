@@ -309,6 +309,12 @@ cubby/
       diagnose.yaml
       validate.yaml
       export.yaml
+    packs/
+      lesson-curriculum.yaml
+      family-communication.yaml
+      special-education.yaml
+      behavior-support.yaml
+      data-progress.yaml
     extensions/
       README.md
     tools/
