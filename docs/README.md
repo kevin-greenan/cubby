@@ -11,6 +11,8 @@ Read order for implementation work:
 5. [adapter-contract.md](adapter-contract.md) for provider-neutral source versus adapter-specific output.
 6. [performance-library.md](performance-library.md) for the long-term hooks, extensions, tools, skills, and reusable assets that make Cubby high-performing.
 7. [testing-and-acceptance.md](testing-and-acceptance.md) for checks that define MVP readiness.
+8. [walkthrough-lesson-pack.md](walkthrough-lesson-pack.md) for a low-risk lesson pack example.
+9. [walkthrough-parent-email.md](walkthrough-parent-email.md) for a review-gated family communication example.
 
 Run `python scripts/quality_check.py` after documentation or contract changes. GitHub Actions runs the same check on pushes and pull requests.
 

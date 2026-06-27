@@ -14,6 +14,7 @@ interface ArtifactEntry {
   bytes: number;
   modified_at: string;
   content_hash: string;
+  preview: string;
 }
 
 export async function runArtifacts(options: ArtifactsOptions): Promise<number> {
@@ -45,10 +46,13 @@ export async function runArtifacts(options: ArtifactsOptions): Promise<number> {
         format: extension.slice(1),
         bytes: fileStat.size,
         modified_at: fileStat.mtime.toISOString(),
-        content_hash: sha256(content)
+        content_hash: sha256(content),
+        preview: firstContentLine(content)
       });
     }
   }
+
+  const matches = options.query ? filterArtifacts(artifacts, options.query) : artifacts;
 
   const indexPath = "cubby/logs/artifacts/index.yaml";
   await writeText(
@@ -56,6 +60,8 @@ export async function runArtifacts(options: ArtifactsOptions): Promise<number> {
     YAML.stringify({
       created_at: new Date().toISOString(),
       artifact_count: artifacts.length,
+      query: options.query ?? "",
+      match_count: matches.length,
       artifacts
     })
   );
@@ -64,5 +70,28 @@ export async function runArtifacts(options: ArtifactsOptions): Promise<number> {
   console.log(`Workspace: ${workspace}`);
   console.log(`Path: ${indexPath}`);
   console.log(`Artifacts: ${artifacts.length}`);
+  if (options.query) {
+    console.log(`Query: ${options.query}`);
+    console.log(`Matches: ${matches.length}`);
+    for (const artifact of matches) {
+      console.log(`${artifact.area}\t${artifact.path}\t${artifact.preview}`);
+    }
+  }
   return 0;
+}
+
+function filterArtifacts(artifacts: ArtifactEntry[], query: string): ArtifactEntry[] {
+  const normalized = query.toLowerCase();
+  return artifacts.filter((artifact) =>
+    [artifact.path, artifact.area, artifact.format, artifact.content_hash, artifact.preview]
+      .some((value) => value.toLowerCase().includes(normalized))
+  );
+}
+
+function firstContentLine(content: string): string {
+  return content
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .find((line) => line.length > 0)
+    ?.slice(0, 120) ?? "";
 }

@@ -4,13 +4,16 @@ import { runArtifacts } from "./artifacts.js";
 import { runExport } from "./export.js";
 import { runHandoff } from "./handoff.js";
 import { runManifest } from "./manifest.js";
+import { runRedact } from "./redact.js";
 import { runResume } from "./resume.js";
+import { runScaffold } from "./scaffold.js";
 import { runStatus } from "./status.js";
 import { runUpgrade } from "./upgrade.js";
 import { runValidate } from "./validate.js";
 
 interface ParsedArgs {
   command: string | undefined;
+  args: string[];
   options: Record<string, string | boolean>;
 }
 
@@ -41,7 +44,13 @@ async function main(argv: string[]): Promise<number> {
       });
     case "artifacts":
       return runArtifacts({
-        workspace: stringOption(parsed.options.workspace, ".")
+        workspace: stringOption(parsed.options.workspace, "."),
+        query: stringOptionOrUndefined(parsed.options.query)
+      });
+    case "redact":
+      return runRedact({
+        workspace: stringOption(parsed.options.workspace, "."),
+        source: stringOptionOrUndefined(parsed.options.source)
       });
     case "export":
       return runExport({
@@ -59,6 +68,12 @@ async function main(argv: string[]): Promise<number> {
         workspace: stringOption(parsed.options.workspace, "."),
         dryRun: parsed.options["dry-run"] === true
       });
+    case "scaffold":
+      return runScaffold({
+        kind: parsed.args[0],
+        name: parsed.args[1],
+        root: stringOption(parsed.options.root, ".")
+      });
     case "help":
     case undefined:
       printHelp();
@@ -72,10 +87,12 @@ async function main(argv: string[]): Promise<number> {
 
 function parseArgs(argv: string[]): ParsedArgs {
   const [command, ...rest] = argv;
+  const args: string[] = [];
   const options: Record<string, string | boolean> = {};
   for (let index = 0; index < rest.length; index += 1) {
     const item = rest[index];
     if (!item.startsWith("--")) {
+      args.push(item);
       continue;
     }
     const key = item.slice(2);
@@ -87,7 +104,7 @@ function parseArgs(argv: string[]): ParsedArgs {
     options[key] = value;
     index += 1;
   }
-  return { command, options };
+  return { command, args, options };
 }
 
 function stringOption(value: string | boolean | undefined, fallback: string): string {
@@ -107,10 +124,13 @@ Commands:
   status --workspace <path>
   resume --workspace <path>
   handoff --workspace <path>
-  artifacts --workspace <path>
+  artifacts --workspace <path> [--query <term>]
   export --workspace <path> --source <cubby/outputs/file.md> [--force] [--overwrite]
+  redact --workspace <path> --source <path>
   manifest --workspace <path>
   upgrade --workspace <path> --dry-run
+  scaffold workflow <name> [--root <repo-path>]
+  scaffold agent <name> [--root <repo-path>]
 `);
 }
 
