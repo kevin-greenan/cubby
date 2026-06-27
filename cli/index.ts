@@ -4,6 +4,7 @@ import { runArtifacts } from "./artifacts.js";
 import { runExport } from "./export.js";
 import { runHandoff } from "./handoff.js";
 import { runManifest } from "./manifest.js";
+import { runPacks } from "./packs.js";
 import { runRedact } from "./redact.js";
 import { runResume } from "./resume.js";
 import { runScaffold } from "./scaffold.js";
@@ -61,6 +62,10 @@ async function main(argv: string[]): Promise<number> {
       });
     case "manifest":
       return runManifest({
+        workspace: stringOption(parsed.options.workspace, ".")
+      });
+    case "packs":
+      return runPacks({
         workspace: stringOption(parsed.options.workspace, ".")
       });
     case "upgrade":
@@ -128,6 +133,7 @@ Commands:
   export --workspace <path> --source <cubby/outputs/file.md> [--force] [--overwrite]
   redact --workspace <path> --source <path>
   manifest --workspace <path>
+  packs --workspace <path>
   upgrade --workspace <path> --dry-run
   scaffold workflow <name> [--root <repo-path>]
   scaffold agent <name> [--root <repo-path>]

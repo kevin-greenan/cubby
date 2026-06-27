@@ -25,6 +25,7 @@ test("init creates a valid Codex workspace", async () => {
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/lesson-plan.md"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/redact.md"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/scaffold.md"), "utf8"), /managed-by: cubby/);
+    assert.match(await readFile(path.join(workspace, "cubby/framework/commands/packs.md"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/workflows/lesson-plan.yaml"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/packs/lesson-curriculum.yaml"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/skills/README.md"), "utf8"), /Skills/);
@@ -137,6 +138,20 @@ test("validate warns on sensitive patterns in artifacts", async () => {
   });
 });
 
+test("validate fails on broken pack references", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    const packPath = path.join(workspace, "cubby/framework/packs/broken.yaml");
+    await writeFile(
+      packPath,
+      "id: broken\nname: Broken\ndescription: Broken pack\nstatus: active\nworkflows:\n  - missing-workflow\n",
+      "utf8"
+    );
+
+    await assert.rejects(runCli(["validate", "--workspace", workspace]));
+  });
+});
+
 test("status summarizes current task and manifest", async () => {
   await withWorkspace(async (workspace) => {
     await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
@@ -184,6 +199,19 @@ test("manifest summarizes managed files and local edits", async () => {
     assert.match(result.stdout, /Cubby manifest/);
     assert.match(result.stdout, /Managed files: \d+/);
     assert.match(result.stdout, /Local edits: 1/);
+  });
+});
+
+test("packs lists installed workflow packs", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+
+    const result = await runCli(["packs", "--workspace", workspace]);
+
+    assert.match(result.stdout, /Cubby packs/);
+    assert.match(result.stdout, /lesson-curriculum/);
+    assert.match(result.stdout, /family-communication/);
+    assert.match(result.stdout, /workflows: lesson-plan, lesson-pack/);
   });
 });
 

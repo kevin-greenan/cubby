@@ -13,6 +13,16 @@ interface ValidationMessage {
   message: string;
 }
 
+interface PackDefinition {
+  workflows?: string[];
+  commands?: string[];
+  agents?: string[];
+  templates?: string[];
+  validators?: string[];
+  hooks?: string[];
+  tools?: string[];
+}
+
 const REQUIRED_PATHS = [
   "AGENTS.md",
   ".cubby-version",
@@ -82,6 +92,7 @@ export async function runValidate(options: ValidateOptions): Promise<number> {
   }
 
   await validateFrameworkDefinitions(workspace, messages);
+  await validatePackReferences(workspace, messages);
   await runArtifactValidation(workspace, messages);
   await writeValidationLog(workspace, messages);
 
@@ -139,6 +150,57 @@ async function validateYamlFiles(workspace: string, relativeDir: string, schemaP
       await validateWithSchema(parsed, schemaPath, relativePath, messages);
     }
   }
+}
+
+async function validatePackReferences(workspace: string, messages: ValidationMessage[]): Promise<void> {
+  const packDir = workspacePath(workspace, "cubby/framework/packs");
+  if (!(await exists(packDir))) {
+    return;
+  }
+
+  const files = (await listFilesRecursive(packDir)).filter((file) => file.endsWith(".yaml") || file.endsWith(".yml"));
+  for (const file of files) {
+    const relativePath = path.relative(workspace, file).split(path.sep).join("/");
+    const parsed = await parseYaml<PackDefinition>(workspace, relativePath, messages);
+    if (!parsed) {
+      continue;
+    }
+    await validatePackReferenceList(workspace, relativePath, "workflow", parsed.workflows, (id) => [`cubby/framework/workflows/${id}.yaml`], messages);
+    await validatePackReferenceList(workspace, relativePath, "command", parsed.commands, (id) => [`cubby/framework/commands/${id}.md`], messages);
+    await validatePackReferenceList(workspace, relativePath, "agent", parsed.agents, (id) => [`cubby/framework/agents/${id}.md`], messages);
+    await validatePackReferenceList(workspace, relativePath, "template", parsed.templates, (id) => [`cubby/framework/templates/${id}.md`, `cubby/framework/templates/${id}.csv`], messages);
+    await validatePackReferenceList(workspace, relativePath, "validator", parsed.validators, (id) => [`cubby/framework/validators/${id}.yaml`], messages);
+    await validatePackReferenceList(workspace, relativePath, "hook", parsed.hooks, (id) => [`cubby/framework/hooks/${id}.yaml`], messages);
+    await validatePackReferenceList(workspace, relativePath, "tool", parsed.tools, (id) => [`cubby/framework/tools/${id}.md`, `cubby/framework/commands/${id}.md`], messages);
+  }
+}
+
+async function validatePackReferenceList(
+  workspace: string,
+  packPath: string,
+  kind: string,
+  ids: string[] | undefined,
+  candidatesFor: (id: string) => string[],
+  messages: ValidationMessage[]
+): Promise<void> {
+  for (const id of ids ?? []) {
+    const candidates = candidatesFor(id);
+    const found = await pathExistsAny(workspace, candidates);
+    messages.push({
+      status: found ? "pass" : "fail",
+      path: packPath,
+      message: found ? `pack ${kind} reference resolved: ${id}` : `pack ${kind} reference missing: ${id}`
+    });
+  }
+}
+
+async function pathExistsAny(workspace: string, candidates: string[]): Promise<boolean> {
+  for (const candidate of candidates) {
+    if (await exists(workspacePath(workspace, candidate))) {
+      return true;
+    }
+  }
+  return false;
 }
 
 async function runArtifactValidation(workspace: string, messages: ValidationMessage[]): Promise<void> {
