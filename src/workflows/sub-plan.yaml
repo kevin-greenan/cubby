@@ -1,0 +1,4 @@
+id: sub-plan
+name: Sub Plan
+risk_level: medium
+phases: [intake, draft, validation, handoff]

@@ -1,0 +1,7 @@
+id: interventionist
+default_agents:
+  - classroom-orchestrator
+  - data-progress-specialist
+default_commands:
+  - lesson-plan
+  - data-tracker

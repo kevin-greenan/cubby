@@ -17,6 +17,9 @@ Cubby should install a structured workspace containing:
 * Templates for teacher-facing outputs
 * Project-local state and scratchpad files
 * Validation and review gates
+* Hooks for continuation, validation, export, diagnosis, and handoff behavior
+* Extensions and library packs for domain-specific workflow bundles
+* Tools and skills that make common educator tasks faster, safer, and more repeatable
 * Adapter-specific files for tools such as Codex
 * Upgrade-safe scaffolding that preserves local customization
 
@@ -64,6 +67,10 @@ Design Principles
     * Outputs should use strengths-based language.
     * Avoid unnecessary student-identifying information.
     * Distinguish observed data, teacher-provided facts, and AI-generated suggestions.
+10. Rich performance library
+    * Cubby should include a broad, reusable library of hooks, extensions, tools, skills, validators, templates, schemas, and workflow assets.
+    * The library should make agent work more reliable by giving agents proven structures instead of relying on one-off prompting.
+    * Performance features must remain inspectable, provider-neutral at the source level, and bounded by teacher authority, privacy, and human-review gates.
 
 Target Users
 
@@ -177,7 +184,7 @@ cubby/
       quality.yml
   README.md
   LICENSE
-  plan.md
+  PLAN.md
   docs/
     README.md
     mvp-implementation-guide.md
@@ -289,6 +296,12 @@ cubby/
       diagnose.yaml
       validate.yaml
       export.yaml
+    extensions/
+      README.md
+    tools/
+      README.md
+    skills/
+      README.md
     profiles/
       k5-general.yaml
       k5-special-ed.yaml
@@ -1150,7 +1163,28 @@ MVP adapter rule:
 * Implement only src/adapters/codex/.
 * Document the future adapter contract in src/adapters/README.md.
 * Do not scaffold empty provider directories for Claude, ChatGPT, Gemini, Google Workspace, or Microsoft 365 in Milestones 1-2.
-* Provider-neutral behavior belongs in agents, commands, workflows, rules, templates, schemas, validators, hooks, and profiles, not in Codex-specific files.
+* Provider-neutral behavior belongs in agents, commands, workflows, rules, templates, schemas, validators, hooks, extensions, tools, skills, and profiles, not in Codex-specific files.
+
+Performance Library
+
+Cubby should include a liberal library of reusable performance assets over time. This library should make the framework very high-performing by giving agents explicit, validated structures for common educator work.
+
+Library families:
+
+* hooks for continuation, validation, export, diagnose, repair, and handoff decisions
+* extensions for domain-specific packs such as lesson planning, family communication, special education, behavior support, data tracking, accessibility, and export generation
+* tools for validation, conversion, redaction, indexing, manifest inspection, artifact generation, and quality checks
+* skills for portable, platform-rendered task behavior
+* validators, schemas, templates, profiles, rules, commands, workflows, and specialist agents
+
+MVP behavior:
+
+* Create clear source locations for hooks, extensions, tools, and skills.
+* Hooks may remain declarative YAML and documentation.
+* Tools may start with the CLI and repository quality checks.
+* Skills may start as command and agent Markdown until platform-specific skill packaging is defined.
+* Extensions may start as a documented source folder and future pack contract.
+* Do not add opaque automation or sensitive decision-making tools without review gates.
 
 Codex Adapter
 
@@ -1252,6 +1286,8 @@ Add package scripts:
   "scripts": {
     "build": "tsc",
     "check": "tsc --noEmit",
+    "quality": "python3 scripts/quality_check.py",
+    "test": "node --test tests/*.test.mjs",
     "init:example": "node dist/cli/index.js init --profile k5-special-ed --adapter codex --workspace ./examples/k5-special-ed-workspace",
     "validate:example": "node dist/cli/index.js validate --workspace ./examples/k5-special-ed-workspace"
   }
@@ -1353,7 +1389,7 @@ Deliverables:
 * This plan.md
 * Initial TypeScript project setup
 * CLI entrypoint
-* Empty or draft source files for agents, commands, workflows, rules, templates, schemas, validators, adapters, hooks, and profiles
+* Empty or draft source files for agents, commands, workflows, rules, templates, schemas, validators, adapters, hooks, extensions, tools, skills, and profiles
 
 Acceptance criteria:
 
@@ -1553,7 +1589,7 @@ Consider:
 * ajv for JSON Schema validation
 * fs-extra for filesystem operations
 * zod only if preferred over JSON Schema for internal TypeScript validation
-* vitest for tests
+* Node's built-in test runner for MVP tests
 
 Testing Strategy
 
@@ -1613,8 +1649,10 @@ Specific first task:
 Acceptance check:
 
 npm install
+npm run quality
 npm run check
 npm run build
+npm test
 node dist/cli/index.js init --profile k5-special-ed --adapter codex --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js validate --workspace ./examples/k5-special-ed-workspace
 

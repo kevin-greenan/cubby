@@ -92,6 +92,9 @@ src/templates/
 src/schemas/
 src/validators/
 src/hooks/
+src/extensions/
+src/tools/
+src/skills/
 src/profiles/
 ```
 
@@ -192,7 +195,7 @@ Do not create framework content that implies AI can replace professional educati
 
 Adapters translate shared Cubby concepts into a specific platform's expected files or conventions.
 
-Adapters should not own the core product model. They should map shared agents, workflows, commands, rules, templates, schemas, validators, and profiles into provider-specific formats.
+Adapters should not own the core product model. They should map shared agents, workflows, commands, rules, templates, schemas, validators, hooks, extensions, tools, skills, and profiles into provider-specific formats.
 
 When working on adapters:
 

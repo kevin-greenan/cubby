@@ -1,0 +1,6 @@
+id: family-communication-check
+checks:
+  - warm tone
+  - factual language
+  - human review required
+results: [pass, warn, fail]

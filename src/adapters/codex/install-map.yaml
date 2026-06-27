@@ -1,0 +1,5 @@
+adapter: codex
+version: 0.1.0
+generated_files:
+  - path: AGENTS.md
+    source: src/adapters/codex/AGENTS.md.template

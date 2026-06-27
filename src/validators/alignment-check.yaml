@@ -1,0 +1,6 @@
+id: alignment-check
+checks:
+  - objective aligns to activity
+  - activity aligns to assessment
+  - timing realistic
+results: [pass, warn, fail]

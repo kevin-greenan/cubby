@@ -1,0 +1,3 @@
+hook_decision:
+  action: export
+  reason: Export only after review gates allow it.

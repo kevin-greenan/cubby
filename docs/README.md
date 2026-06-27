@@ -9,7 +9,8 @@ Read order for implementation work:
 3. [workspace-contract.md](workspace-contract.md) for installed workspace shape and ownership rules.
 4. [manifest-and-managed-files.md](manifest-and-managed-files.md) for managed-file metadata, hashes, and repeat-init behavior.
 5. [adapter-contract.md](adapter-contract.md) for provider-neutral source versus adapter-specific output.
-6. [testing-and-acceptance.md](testing-and-acceptance.md) for checks that define MVP readiness.
+6. [performance-library.md](performance-library.md) for the long-term hooks, extensions, tools, skills, and reusable assets that make Cubby high-performing.
+7. [testing-and-acceptance.md](testing-and-acceptance.md) for checks that define MVP readiness.
 
 Run `python scripts/quality_check.py` after documentation or contract changes. GitHub Actions runs the same check on pushes and pull requests.
 

@@ -1,0 +1,7 @@
+id: instructional-coach
+default_agents:
+  - classroom-orchestrator
+  - curriculum-alignment-specialist
+default_commands:
+  - lesson-plan
+  - data-tracker

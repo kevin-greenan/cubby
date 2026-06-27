@@ -1,0 +1,3 @@
+hook_decision:
+  action: continue
+  reason: Continue when state allows autonomous or managed progress.

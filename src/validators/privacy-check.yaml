@@ -1,0 +1,5 @@
+id: privacy-check
+checks:
+  - student-identifying information
+  - sensitive details in filenames
+results: [pass, warn, fail]

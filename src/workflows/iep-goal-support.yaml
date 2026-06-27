@@ -1,0 +1,4 @@
+id: iep-goal-support
+name: IEP Goal Support
+risk_level: high
+phases: [intake, draft, validation, human_gate, handoff]

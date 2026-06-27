@@ -16,8 +16,10 @@ The MVP acceptance path is:
 
 ```text
 npm install
+npm run quality
 npm run check
 npm run build
+npm test
 node dist/cli/index.js init --profile k5-special-ed --adapter codex --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js validate --workspace ./examples/k5-special-ed-workspace
 ```
@@ -31,6 +33,7 @@ Add tests for:
 * required project docs and local Markdown links
 * CLI argument parsing
 * workspace initialization
+* source folders for hooks, extensions, tools, skills, validators, and adapters
 * managed-file header insertion
 * manifest creation
 * current task schema validation

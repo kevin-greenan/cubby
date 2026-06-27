@@ -1,0 +1,3 @@
+hook_decision:
+  action: diagnose
+  reason: Diagnose blockers or failed validation.

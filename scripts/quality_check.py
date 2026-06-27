@@ -16,14 +16,26 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 REQUIRED_FILES = [
+    ".github/workflows/quality.yml",
+    ".gitignore",
     "AGENTS.md",
+    "LICENSE",
+    "README.md",
     "PLAN.md",
+    "package-lock.json",
+    "package.json",
+    "tsconfig.json",
     "docs/README.md",
     "docs/mvp-implementation-guide.md",
     "docs/workspace-contract.md",
     "docs/manifest-and-managed-files.md",
     "docs/adapter-contract.md",
+    "docs/performance-library.md",
     "docs/testing-and-acceptance.md",
+    "scripts/quality_check.py",
+    "src/extensions/README.md",
+    "src/tools/README.md",
+    "src/skills/README.md",
 ]
 
 STATUS_NAMES = [

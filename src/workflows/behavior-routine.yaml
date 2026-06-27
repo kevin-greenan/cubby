@@ -1,0 +1,4 @@
+id: behavior-routine
+name: Behavior Routine
+risk_level: high
+phases: [intake, draft, validation, human_gate, handoff]

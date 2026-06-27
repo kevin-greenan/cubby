@@ -1,0 +1,4 @@
+id: lesson-plan
+name: Lesson Plan
+risk_level: low
+phases: [intake, draft, validation, handoff]

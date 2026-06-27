@@ -1,0 +1,25 @@
+{
+  "name": "cubby",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Portable AI workflow scaffolding for K-5 educator workspaces.",
+  "bin": {
+    "cubby": "dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit",
+    "quality": "python3 scripts/quality_check.py",
+    "test": "node --test tests/*.test.mjs",
+    "init:example": "node dist/cli/index.js init --profile k5-special-ed --adapter codex --workspace ./examples/k5-special-ed-workspace",
+    "validate:example": "node dist/cli/index.js validate --workspace ./examples/k5-special-ed-workspace"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "yaml": "^2.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.7",
+    "typescript": "^5.8.3"
+  }
+}
