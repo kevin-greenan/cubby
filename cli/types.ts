@@ -52,6 +52,14 @@ export interface StartOptions {
   force: boolean;
 }
 
+export interface AdvanceOptions {
+  workspace: string;
+  phase: string | undefined;
+  status: string | undefined;
+  note: string | undefined;
+  completeSubagents: boolean;
+}
+
 export interface UpgradeOptions {
   workspace: string;
   dryRun: boolean;

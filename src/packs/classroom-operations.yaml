@@ -1,0 +1,46 @@
+id: classroom-operations
+name: Classroom Operations Pack
+description: Substitute plans, routines, meeting-prep artifacts, schedules, checklists, and operational handoffs for daily classroom continuity.
+unmet_use_case: Teachers need a classroom operations pack for recurring logistics, substitute coverage, routines, and reviewable operational handoffs.
+status: active
+scope:
+  include:
+    - Substitute plans, student-neutral routines, meeting agendas, materials checklists, and daily classroom logistics.
+    - Operational drafts that help educators prepare coverage or coordinate classroom support without exposing sensitive details.
+  exclude:
+    - Emergency decision-making, discipline determinations, staffing directives, or official school operations policy.
+    - SIS, LMS, attendance, or scheduling-system writes.
+workflows:
+  - sub-plan
+commands:
+  - sub-plan
+agents:
+  - classroom-orchestrator
+  - sub-plan-specialist
+  - materials-designer
+  - behavior-support-specialist
+  - privacy-safeguards-reviewer
+  - accessibility-language-reviewer
+  - admin-lens-reviewer
+templates:
+  - sub-plan
+  - meeting-agenda
+  - validation-summary
+  - handoff
+validators:
+  - privacy-check
+  - accessibility-check
+hooks:
+  - validate
+tools:
+  - artifacts
+  - export
+  - redact
+skills: []
+quality_checks:
+  - Keep substitute and operations artifacts student-neutral unless reviewed by the responsible educator.
+  - Confirm schedules, materials, routines, and fallback activities are concrete enough for another adult to follow.
+  - Run privacy-check and accessibility-check before handoff or export.
+review_gates:
+  human_review_required_for_sensitive_outputs: true
+  notes: Operational drafts may proceed when student-neutral; sensitive student details or emergency procedures require teacher review.

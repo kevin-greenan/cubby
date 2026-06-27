@@ -6,6 +6,8 @@ import { USER_OWNED_DIRS } from "./constants.js";
 import { exists, listFilesRecursive, readText, sha256, workspacePath, writeText } from "./fs-utils.js";
 import { findSensitivePatterns } from "./sensitive.js";
 import type { Manifest, ValidateOptions } from "./types.js";
+import type { CurrentTask } from "./workspace.js";
+import { plannedOutputPaths, readWorkflow, taskSlugFromId } from "./workflows.js";
 
 interface ValidationMessage {
   status: "pass" | "warn" | "fail";
@@ -46,6 +48,7 @@ const REQUIRED_PATHS = [
   "cubby/manifest.yaml",
   "cubby/state/current-task.yaml",
   "cubby/framework/commands/start.md",
+  "cubby/framework/commands/advance.md",
   "cubby/framework/commands/lesson-plan.md",
   "cubby/framework/workflows/lesson-plan.yaml",
   "cubby/framework/rules/core/human-review.md",
@@ -104,9 +107,10 @@ export async function runValidate(options: ValidateOptions): Promise<number> {
     }
   }
 
-  const currentTask = await parseYaml<unknown>(workspace, "cubby/state/current-task.yaml", messages);
+  const currentTask = await parseYaml<CurrentTask>(workspace, "cubby/state/current-task.yaml", messages);
   if (currentTask) {
     await validateWithSchema(currentTask, "src/schemas/state.schema.json", "cubby/state/current-task.yaml", messages);
+    await validateActiveWorkflowState(workspace, currentTask, messages);
   }
 
   await validateFrameworkDefinitions(workspace, messages);
@@ -116,6 +120,58 @@ export async function runValidate(options: ValidateOptions): Promise<number> {
 
   printMessages(workspace, messages);
   return messages.some((message) => message.status === "fail") ? 1 : 0;
+}
+
+async function validateActiveWorkflowState(workspace: string, currentTask: CurrentTask, messages: ValidationMessage[]): Promise<void> {
+  const workflowId = currentTask.task?.workflow;
+  if (!workflowId) {
+    messages.push({ status: "pass", path: "cubby/state/current-task.yaml", message: "no active workflow selected" });
+    return;
+  }
+
+  const workflowPath = `cubby/framework/workflows/${workflowId}.yaml`;
+  const workflow = await readWorkflow(workspace, workflowId);
+  if (!workflow) {
+    messages.push({ status: "fail", path: "cubby/state/current-task.yaml", message: `active workflow missing: ${workflowId}` });
+    return;
+  }
+  messages.push({ status: "pass", path: workflowPath, message: "active workflow resolved" });
+
+  const phase = currentTask.task?.phase ?? "";
+  if ((workflow.phases ?? []).includes(phase)) {
+    messages.push({ status: "pass", path: "cubby/state/current-task.yaml", message: `active workflow phase valid: ${phase}` });
+  } else {
+    messages.push({ status: "fail", path: "cubby/state/current-task.yaml", message: `active workflow phase invalid: ${phase}` });
+  }
+
+  const taskSlug = taskSlugFromId(workflowId, currentTask.task?.id);
+  const expectedOutputs = plannedOutputPaths(workflow, taskSlug);
+  const draftPaths = (currentTask.outputs?.drafts ?? [])
+    .map((draft) => (isRecord(draft) && typeof draft.path === "string" ? draft.path : undefined))
+    .filter((value): value is string => Boolean(value));
+  for (const expectedOutput of expectedOutputs) {
+    messages.push({
+      status: draftPaths.includes(expectedOutput) ? "pass" : "warn",
+      path: "cubby/state/current-task.yaml",
+      message: draftPaths.includes(expectedOutput) ? `planned workflow output present: ${expectedOutput}` : `planned workflow output missing: ${expectedOutput}`
+    });
+  }
+
+  for (const agent of currentTask.subagents?.fanout?.requested ?? []) {
+    if (typeof agent !== "string") {
+      continue;
+    }
+    const found = await exists(workspacePath(workspace, `cubby/framework/agents/${agent}.md`));
+    messages.push({
+      status: found ? "pass" : "fail",
+      path: "cubby/state/current-task.yaml",
+      message: found ? `requested subagent resolved: ${agent}` : `requested subagent missing: ${agent}`
+    });
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
 }
 
 async function parseYaml<T>(workspace: string, relativePath: string, messages: ValidationMessage[]): Promise<T | undefined> {

@@ -24,11 +24,13 @@ test("init creates a valid Codex workspace", async () => {
     assert.match(await readFile(path.join(workspace, "cubby/state/current-task.yaml"), "utf8"), /strategy: none/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/lesson-plan.md"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/start.md"), "utf8"), /managed-by: cubby/);
+    assert.match(await readFile(path.join(workspace, "cubby/framework/commands/advance.md"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/redact.md"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/scaffold.md"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/packs.md"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/workflows/lesson-plan.yaml"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/packs/lesson-curriculum.yaml"), "utf8"), /managed-by: cubby/);
+    assert.match(await readFile(path.join(workspace, "cubby/framework/packs/classroom-operations.yaml"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/skills/README.md"), "utf8"), /Skills/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/subagents/README.md"), "utf8"), /Subagents/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/tools/pack-design.md"), "utf8"), /Pack Design/);
@@ -271,6 +273,7 @@ test("start initializes current task from a workflow", async () => {
     assert.equal(currentTask.outputs.drafts[0].path, "cubby/outputs/lesson-packs/main-idea-lesson/lesson-plan.md");
     assert.equal(currentTask.validation.human_review_required.required, false);
     assert.match(currentTask.next_action.message, /cubby\/framework\/commands\/lesson-plan.md/);
+    assert.match(currentTask.next_action.message, /run cubby advance/);
 
     await assert.rejects(runCli(["start", "parent-email", "--workspace", workspace]));
     await runCli(["start", "parent-email", "--workspace", workspace, "--title", "Conference Follow Up", "--force"]);
@@ -278,7 +281,7 @@ test("start initializes current task from a workflow", async () => {
     assert.equal(sensitiveTask.validation.human_review_required.required, true);
     assert.equal(sensitiveTask.next_action.mode, "continue");
     const resume = await runCli(["resume", "--workspace", workspace]);
-    assert.match(resume.stdout, /Instruction: load the command and workflow files/);
+    assert.match(resume.stdout, /then run cubby advance/);
   });
 });
 
@@ -289,6 +292,73 @@ test("start validates workflow arguments", async () => {
     await assert.rejects(runCli(["start", "--workspace", workspace]));
     await assert.rejects(runCli(["start", "missing-workflow", "--workspace", workspace]));
     await assert.rejects(runCli(["start", "lesson-plan", "--workspace", workspace, "--duration", "nope"]));
+  });
+});
+
+test("advance moves current task through workflow phases", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    await runCli(["start", "lesson-plan", "--workspace", workspace, "--title", "Main Idea Lesson"]);
+
+    const result = await runCli(["advance", "--workspace", workspace, "--complete-subagents", "--note", "Intake complete."]);
+
+    assert.match(result.stdout, /Cubby task advanced/);
+    assert.match(result.stdout, /Phase: context/);
+    assert.match(result.stdout, /Subagent requested: none/);
+
+    const currentTask = YAML.parse(await readFile(path.join(workspace, "cubby/state/current-task.yaml"), "utf8"));
+    assert.equal(currentTask.task.phase, "context");
+    assert.equal(currentTask.task.status, "in_progress");
+    assert.equal(currentTask.subagents.fanout.status, "complete");
+    assert.ok(currentTask.subagents.calls.every((call) => call.status === "complete"));
+    assert.equal(currentTask.decisions[0].note, "Intake complete.");
+
+    const review = await runCli(["advance", "--workspace", workspace, "--phase", "review"]);
+    assert.match(review.stdout, /Phase: review/);
+    const reviewTask = YAML.parse(await readFile(path.join(workspace, "cubby/state/current-task.yaml"), "utf8"));
+    assert.deepEqual(reviewTask.subagents.fanout.requested, ["materials-designer", "privacy-safeguards-reviewer"]);
+
+    await assert.rejects(runCli(["advance", "--workspace", workspace, "--phase", "not-a-phase"]));
+    await assert.rejects(runCli(["advance", "--workspace", workspace, "--status", "invalid"]));
+  });
+});
+
+test("advance pauses sensitive workflows at human review gates", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    await runCli(["start", "parent-email", "--workspace", workspace, "--title", "Conference Follow Up"]);
+
+    const result = await runCli(["advance", "--workspace", workspace, "--phase", "human_gate", "--complete-subagents"]);
+
+    assert.match(result.stdout, /Status: waiting_for_review/);
+    assert.match(result.stdout, /Next action: pause_for_review/);
+    const currentTask = YAML.parse(await readFile(path.join(workspace, "cubby/state/current-task.yaml"), "utf8"));
+    assert.equal(currentTask.task.phase, "human_gate");
+    assert.equal(currentTask.task.status, "waiting_for_review");
+    assert.equal(currentTask.validation.human_review_required.required, true);
+    assert.equal(currentTask.next_action.mode, "pause_for_review");
+
+    const resume = await runCli(["resume", "--workspace", workspace]);
+    assert.match(resume.stdout, /pause for human review/);
+  });
+});
+
+test("validate checks active workflow state", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    await runCli(["start", "lesson-plan", "--workspace", workspace, "--title", "Main Idea Lesson"]);
+
+    const valid = await runCli(["validate", "--workspace", workspace]);
+    assert.match(valid.stdout, /active workflow resolved/);
+    assert.match(valid.stdout, /active workflow phase valid: intake/);
+    assert.match(valid.stdout, /planned workflow output present/);
+
+    const currentTaskPath = path.join(workspace, "cubby/state/current-task.yaml");
+    const currentTask = YAML.parse(await readFile(currentTaskPath, "utf8"));
+    currentTask.task.phase = "not-a-phase";
+    await writeFile(currentTaskPath, YAML.stringify(currentTask), "utf8");
+
+    await assert.rejects(runCli(["validate", "--workspace", workspace]));
   });
 });
 
@@ -335,6 +405,7 @@ test("packs lists installed workflow packs", async () => {
     const result = await runCli(["packs", "--workspace", workspace]);
 
     assert.match(result.stdout, /Cubby packs/);
+    assert.match(result.stdout, /classroom-operations/);
     assert.match(result.stdout, /lesson-curriculum/);
     assert.match(result.stdout, /family-communication/);
     assert.match(result.stdout, /need: Teachers need a coordinated lesson-materials pack/);

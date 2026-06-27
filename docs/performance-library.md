@@ -100,6 +100,7 @@ Tools should be small, inspectable, and deterministic where possible. Prefer too
 * template linting
 * workflow schema validation
 * handoff generation
+* workflow phase advancement
 
 Avoid tools that create opaque behavior or make sensitive decisions without review. Tool output should be visible in logs, validation summaries, manifests, or handoffs when it affects user-facing artifacts.
 

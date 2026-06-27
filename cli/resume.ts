@@ -28,7 +28,7 @@ export async function runResume(options: ResumeOptions): Promise<number> {
   } else if (task.status === "complete" || next.mode === "complete") {
     console.log("Instruction: task is complete; create or review handoff.");
   } else {
-    console.log("Instruction: load the command and workflow files from cubby/framework/, continue the current phase, then update current-task.yaml.");
+    console.log("Instruction: load the command and workflow files from cubby/framework/, continue the current phase, then run cubby advance.");
   }
 
   if (next.message) {

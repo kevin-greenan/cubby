@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { runAdvance } from "./advance.js";
 import { runInit } from "./init.js";
 import { runArtifacts } from "./artifacts.js";
 import { runExport } from "./export.js";
@@ -46,6 +47,14 @@ async function main(argv: string[]): Promise<number> {
         topic: stringOptionOrUndefined(parsed.options.topic),
         duration: stringOptionOrUndefined(parsed.options.duration),
         force: parsed.options.force === true
+      });
+    case "advance":
+      return runAdvance({
+        workspace: stringOption(parsed.options.workspace, "."),
+        phase: stringOptionOrUndefined(parsed.options.phase),
+        status: stringOptionOrUndefined(parsed.options.status),
+        note: stringOptionOrUndefined(parsed.options.note),
+        completeSubagents: parsed.options["complete-subagents"] === true
       });
     case "resume":
       return runResume({
@@ -141,6 +150,7 @@ Commands:
   validate --workspace <path>
   status --workspace <path>
   start <workflow> --workspace <path> [--title <title>] [--grade <grade>] [--subject <subject>] [--topic <topic>] [--duration <minutes>] [--force]
+  advance --workspace <path> [--phase <phase>] [--status <status>] [--note <note>] [--complete-subagents]
   resume --workspace <path>
   handoff --workspace <path>
   artifacts --workspace <path> [--query <term>]

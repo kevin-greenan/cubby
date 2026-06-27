@@ -239,6 +239,7 @@ cubby/
       data-tracker.md
       behavior-routine.md
       start.md
+      advance.md
       validate.md
       status.md
       resume.md
@@ -316,6 +317,7 @@ cubby/
       special-education.yaml
       behavior-support.yaml
       data-progress.yaml
+      classroom-operations.yaml
     extensions/
       README.md
     tools/
