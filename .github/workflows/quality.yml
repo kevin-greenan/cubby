@@ -27,6 +27,9 @@ jobs:
       - name: Run quality checks
         run: python scripts/quality_check.py
 
+      - name: Check whitespace
+        run: git diff --check
+
   node:
     name: TypeScript build and tests
     runs-on: ubuntu-latest
@@ -41,7 +44,7 @@ jobs:
           node-version: "22"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Type check
         run: npm run check
@@ -51,3 +54,6 @@ jobs:
 
       - name: Test
         run: npm test
+
+      - name: Workspace smoke
+        run: npm run smoke:workspace
