@@ -163,6 +163,8 @@ Implement the following:
 
 Do not start with Google Docs, Microsoft 365, Canvas, Schoology, or live integrations. Those should be adapter extensions after the local framework works.
 
+For the first implementation, keep the shared source platform-neutral but implement only the Codex adapter. Do not create placeholder adapter folders for future providers unless they contain an explicit adapter contract or test fixture needed by the Codex MVP. Future adapters should be added when their install behavior, generated files, and validation expectations are defined.
+
 Initial Repository Structure
 
 Create this structure:
@@ -267,16 +269,7 @@ cubby/
         AGENTS.md.template
         install-map.yaml
         commands/
-      claude/
-        CLAUDE.md.template
-      chatgpt/
-        instructions.md.template
-      gemini/
-        gemini-instructions.md.template
-      google-workspace/
-        adapter.yaml
-      microsoft-365/
-        adapter.yaml
+      README.md
     hooks/
       continue.yaml
       diagnose.yaml
@@ -362,6 +355,34 @@ For YAML files:
 # managed-version: 0.1.0
 # local-edits: discouraged
 # safe-customization: use cubby/local/ or cubby/templates/custom/
+
+Manifest Model
+
+Create cubby/manifest.yaml during init.
+
+The manifest is the source of truth for managed files and future upgrade safety. It should record:
+
+* Cubby version
+* Adapter name and adapter version
+* Profile name
+* Workspace creation timestamp
+* Managed file entries
+* Local-preserved paths
+
+Each managed file entry should include:
+
+* path
+* source template or source asset
+* managed version
+* content hash
+* local edits policy
+
+Initial MVP behavior:
+
+* Repeat init may update managed files only when the current file still matches the manifest hash.
+* Repeat init must not overwrite files under cubby/local/, cubby/templates/custom/, cubby/outputs/, cubby/exports/, or cubby/logs/.
+* If a managed file has local edits, init should preserve it and report a warning.
+* Upgrade can remain dry-run/reporting only until the managed-file behavior is covered by tests.
 
 Local State Model
 
@@ -1109,6 +1130,13 @@ Adapters should transform shared source files into provider-specific files.
 
 Initial adapter: Codex.
 
+MVP adapter rule:
+
+* Implement only src/adapters/codex/.
+* Document the future adapter contract in src/adapters/README.md.
+* Do not scaffold empty provider directories for Claude, ChatGPT, Gemini, Google Workspace, or Microsoft 365 in Milestones 1-2.
+* Provider-neutral behavior belongs in agents, commands, workflows, rules, templates, schemas, validators, hooks, and profiles, not in Codex-specific files.
+
 Codex Adapter
 
 Generate:
@@ -1331,6 +1359,15 @@ Acceptance criteria:
 * Running cubby init --profile k5-special-ed --adapter codex --workspace ./examples/k5-special-ed-workspace creates a usable workspace.
 * Generated files contain managed headers.
 * Local customization folders are created but not overwritten on repeat runs.
+
+Definition of usable workspace:
+
+* AGENTS.md gives Codex enough instruction to identify Cubby, available commands, state location, output location, validation expectations, and human-review gates.
+* cubby/state/current-task.yaml exists, validates against the state schema, and can represent not_started, in_progress, blocked, waiting_for_review, and complete tasks.
+* cubby/config.yaml records profile, adapter, autonomy mode, output conventions, and review-gate defaults.
+* cubby/manifest.yaml records every managed file with enough metadata to detect local edits later.
+* cubby validate --workspace reports pass/warn/fail for required workspace shape and current task validity.
+* A repeat init preserves local files and reports whether managed files were created, skipped, updated, or preserved because of local edits.
 
 Milestone 3: Core Agents and Rules
 
@@ -1557,6 +1594,12 @@ npm run check
 npm run build
 node dist/cli/index.js init --profile k5-special-ed --adapter codex --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js validate --workspace ./examples/k5-special-ed-workspace
+
+Also verify:
+
+* Running init a second time does not overwrite cubby/local/teacher-preferences.yaml.
+* Modifying a managed AGENTS.md causes repeat init to preserve the file and report a warning.
+* cubby/manifest.yaml includes path, source, managed version, content hash, and local edit policy for generated managed files.
 
 Expected result:
 
