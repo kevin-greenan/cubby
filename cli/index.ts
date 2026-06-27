@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 import { runInit } from "./init.js";
+import { runArtifacts } from "./artifacts.js";
+import { runExport } from "./export.js";
 import { runHandoff } from "./handoff.js";
 import { runManifest } from "./manifest.js";
 import { runResume } from "./resume.js";
@@ -36,6 +38,17 @@ async function main(argv: string[]): Promise<number> {
     case "handoff":
       return runHandoff({
         workspace: stringOption(parsed.options.workspace, ".")
+      });
+    case "artifacts":
+      return runArtifacts({
+        workspace: stringOption(parsed.options.workspace, ".")
+      });
+    case "export":
+      return runExport({
+        workspace: stringOption(parsed.options.workspace, "."),
+        source: stringOptionOrUndefined(parsed.options.source),
+        force: parsed.options.force === true,
+        overwrite: parsed.options.overwrite === true
       });
     case "manifest":
       return runManifest({
@@ -81,6 +94,10 @@ function stringOption(value: string | boolean | undefined, fallback: string): st
   return typeof value === "string" ? value : fallback;
 }
 
+function stringOptionOrUndefined(value: string | boolean | undefined): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
+
 function printHelp(): void {
   console.log(`Cubby CLI
 
@@ -90,6 +107,8 @@ Commands:
   status --workspace <path>
   resume --workspace <path>
   handoff --workspace <path>
+  artifacts --workspace <path>
+  export --workspace <path> --source <cubby/outputs/file.md> [--force] [--overwrite]
   manifest --workspace <path>
   upgrade --workspace <path> --dry-run
 `);

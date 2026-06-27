@@ -36,6 +36,8 @@ Inspect task status or preview managed-file changes:
 node dist/cli/index.js status --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js resume --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js handoff --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js artifacts --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js export --workspace ./examples/k5-special-ed-workspace --source cubby/outputs/lesson-packs/example/lesson-plan.md
 node dist/cli/index.js manifest --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js upgrade --workspace ./examples/k5-special-ed-workspace --dry-run
 ```

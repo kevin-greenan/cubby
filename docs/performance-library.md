@@ -93,6 +93,7 @@ Tools should be small, inspectable, and deterministic where possible. Prefer too
 * CSV/XLSX generation
 * Markdown-to-DOCX export
 * artifact indexing
+* local Markdown export with review gates
 * redaction helpers
 * template linting
 * workflow schema validation

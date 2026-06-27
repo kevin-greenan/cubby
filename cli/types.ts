@@ -57,3 +57,14 @@ export interface HandoffOptions {
 export interface ManifestOptions {
   workspace: string;
 }
+
+export interface ArtifactsOptions {
+  workspace: string;
+}
+
+export interface ExportOptions {
+  workspace: string;
+  source: string | undefined;
+  force: boolean;
+  overwrite: boolean;
+}

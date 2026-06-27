@@ -25,6 +25,8 @@ node dist/cli/index.js validate --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js status --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js resume --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js handoff --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js artifacts --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js export --workspace ./examples/k5-special-ed-workspace --source cubby/outputs/lesson-packs/example/lesson-plan.md
 node dist/cli/index.js manifest --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js upgrade --workspace ./examples/k5-special-ed-workspace --dry-run
 ```
@@ -50,6 +52,8 @@ Add tests for:
 * status output
 * resume output
 * handoff log generation
+* artifact index generation
+* Markdown export gate behavior
 * manifest inspection
 * upgrade dry-run behavior
 
@@ -75,8 +79,11 @@ The test suite should cover:
 16. `status` summarizes current task, review state, outputs, and managed-file count.
 17. `resume` prints next workflow instruction from current task state.
 18. `handoff` writes a handoff log under `cubby/logs/handoffs/`.
-19. `manifest` summarizes managed files, missing files, and local edits.
-20. `upgrade --dry-run` reports managed-file outcomes without modifying files.
+19. `artifacts` writes an index under `cubby/logs/artifacts/`.
+20. `export` copies reviewed Markdown outputs to `cubby/exports/markdown/`.
+21. `export` blocks when human review is required unless `--force` is provided after review.
+22. `manifest` summarizes managed files, missing files, and local edits.
+23. `upgrade --dry-run` reports managed-file outcomes without modifying files.
 
 ## Acceptance Standard
 

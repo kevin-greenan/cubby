@@ -195,6 +195,62 @@ test("handoff writes handoff log", async () => {
   });
 });
 
+test("artifacts writes an index for outputs and exports", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    await writeFile(path.join(workspace, "cubby/outputs/lesson-packs/draft.md"), "# Draft\n", "utf8");
+    await writeFile(path.join(workspace, "cubby/exports/markdown/export.md"), "# Export\n", "utf8");
+
+    const result = await runCli(["artifacts", "--workspace", workspace]);
+
+    assert.match(result.stdout, /Cubby artifact index written/);
+    assert.match(result.stdout, /Artifacts: 2/);
+
+    const index = YAML.parse(await readFile(path.join(workspace, "cubby/logs/artifacts/index.yaml"), "utf8"));
+    assert.equal(index.artifact_count, 2);
+    assert.ok(index.artifacts.some((entry) => entry.path === "cubby/outputs/lesson-packs/draft.md"));
+    assert.ok(index.artifacts.some((entry) => entry.path === "cubby/exports/markdown/export.md"));
+  });
+});
+
+test("export copies markdown output and records state", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    await writeFile(path.join(workspace, "cubby/outputs/lesson-packs/draft.md"), "# Draft\n", "utf8");
+
+    const result = await runCli(["export", "--workspace", workspace, "--source", "cubby/outputs/lesson-packs/draft.md"]);
+
+    assert.match(result.stdout, /Cubby export written/);
+    assert.equal(await readFile(path.join(workspace, "cubby/exports/markdown/lesson-packs/draft.md"), "utf8"), "# Draft\n");
+
+    const currentTask = YAML.parse(await readFile(path.join(workspace, "cubby/state/current-task.yaml"), "utf8"));
+    assert.ok(currentTask.outputs.exports.some((entry) => entry.path === "cubby/exports/markdown/lesson-packs/draft.md"));
+
+    const validate = await runCli(["validate", "--workspace", workspace]);
+    assert.match(validate.stdout, /Cubby validation passed\./);
+    assert.match(validate.stdout, /task state changed from initial scaffold/);
+  });
+});
+
+test("export blocks when human review is required", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    await writeFile(path.join(workspace, "cubby/outputs/parent-emails/draft.md"), "# Draft\n", "utf8");
+
+    const currentTaskPath = path.join(workspace, "cubby/state/current-task.yaml");
+    const currentTask = YAML.parse(await readFile(currentTaskPath, "utf8"));
+    currentTask.validation.human_review_required.required = true;
+    currentTask.validation.human_review_required.reason = "family communication";
+    await writeFile(currentTaskPath, YAML.stringify(currentTask), "utf8");
+
+    await assert.rejects(runCli(["export", "--workspace", workspace, "--source", "cubby/outputs/parent-emails/draft.md"]));
+
+    const forced = await runCli(["export", "--workspace", workspace, "--source", "cubby/outputs/parent-emails/draft.md", "--force"]);
+    assert.match(forced.stdout, /Review override: true/);
+    assert.equal(await readFile(path.join(workspace, "cubby/exports/markdown/parent-emails/draft.md"), "utf8"), "# Draft\n");
+  });
+});
+
 async function withWorkspace(callback) {
   const tempRoot = await mkdtemp(path.join(os.tmpdir(), "cubby-test-"));
   try {

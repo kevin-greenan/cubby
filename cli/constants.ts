@@ -31,7 +31,7 @@ export const PROFILE_DEFAULTS: Record<string, { agents: string[]; subagents: str
       "family-communication-specialist",
       "privacy-safeguards-reviewer"
     ],
-    commands: ["lesson-plan", "lesson-pack", "parent-email", "sub-plan", "data-tracker", "status", "resume", "handoff", "manifest", "upgrade"]
+    commands: ["lesson-plan", "lesson-pack", "parent-email", "sub-plan", "data-tracker", "status", "resume", "handoff", "artifacts", "export", "manifest", "upgrade"]
   },
   "k5-special-ed": {
     agents: [
@@ -55,22 +55,22 @@ export const PROFILE_DEFAULTS: Record<string, { agents: string[]; subagents: str
       "privacy-safeguards-reviewer",
       "accessibility-language-reviewer"
     ],
-    commands: ["lesson-plan", "lesson-pack", "accommodation-check", "iep-goal-support", "data-tracker", "behavior-routine", "parent-email", "sub-plan", "status", "resume", "handoff", "manifest", "upgrade"]
+    commands: ["lesson-plan", "lesson-pack", "accommodation-check", "iep-goal-support", "data-tracker", "behavior-routine", "parent-email", "sub-plan", "status", "resume", "handoff", "artifacts", "export", "manifest", "upgrade"]
   },
   "instructional-coach": {
     agents: ["classroom-orchestrator", "lesson-architect", "curriculum-alignment-specialist", "accessibility-language-reviewer", "admin-lens-reviewer"],
     subagents: ["lesson-architect", "curriculum-alignment-specialist", "accessibility-language-reviewer", "admin-lens-reviewer"],
-    commands: ["lesson-plan", "lesson-pack", "data-tracker"]
+    commands: ["lesson-plan", "lesson-pack", "data-tracker", "artifacts", "export"]
   },
   "bcba-support": {
     agents: ["classroom-orchestrator", "behavior-support-specialist", "data-progress-specialist", "privacy-safeguards-reviewer", "family-communication-specialist", "admin-lens-reviewer"],
     subagents: ["behavior-support-specialist", "data-progress-specialist", "privacy-safeguards-reviewer", "family-communication-specialist", "admin-lens-reviewer"],
-    commands: ["behavior-routine", "data-tracker", "parent-email"]
+    commands: ["behavior-routine", "data-tracker", "parent-email", "artifacts", "export"]
   },
   interventionist: {
     agents: ["classroom-orchestrator", "lesson-architect", "differentiation-specialist", "data-progress-specialist", "materials-designer", "privacy-safeguards-reviewer"],
     subagents: ["lesson-architect", "differentiation-specialist", "data-progress-specialist", "materials-designer", "privacy-safeguards-reviewer"],
-    commands: ["lesson-plan", "data-tracker", "parent-email"]
+    commands: ["lesson-plan", "data-tracker", "parent-email", "artifacts", "export"]
   }
 };
 
