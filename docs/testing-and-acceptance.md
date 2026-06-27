@@ -17,10 +17,14 @@ The release acceptance path is:
 ```text
 npm install
 npm run quality
+npm run check:cli-docs
 npm run check
 npm run build
 npm test
+npm run smoke:package
+npm run smoke:workspace
 npm run demo:lifecycle
+npm run acceptance:release
 node dist/cli/index.js init --profile k5-special-ed --adapter codex --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js validate --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js start lesson-plan --workspace ./examples/k5-special-ed-workspace --title "Main idea lesson" --grade 2 --subject ELA --topic "main idea" --duration 45
@@ -45,6 +49,7 @@ Add tests for:
 
 * required project docs and local Markdown links
 * CLI argument parsing
+* CLI documentation drift
 * workspace initialization
 * source folders for subagents, hooks, extensions, tools, skills, validators, and adapters
 * managed-file header insertion
@@ -70,7 +75,9 @@ Add tests for:
 * pack listing and pack reference validation
 * manifest inspection
 * upgrade dry-run behavior
+* package contents and installed binary behavior
 * lifecycle demo artifact generation
+* release acceptance path generation
 * artifact-specific validation for Markdown, CSV, YAML, draft records, and export records
 
 ## Required Behavioral Tests
@@ -112,8 +119,10 @@ The test suite should cover:
 33. `examples/sample-outputs/` contains fictional lesson-pack and parent-email artifacts.
 34. `manifest` summarizes managed files, missing files, and local edits.
 35. `upgrade --dry-run` reports managed-file outcomes without modifying files.
-36. `demo:lifecycle` creates an inspectable workspace with a draft, export, handoff log, artifact index, and validation log.
-37. `validate` warns on empty, placeholder-heavy, or weakly structured artifacts and checks recorded exports against their source files.
+36. `smoke:package` verifies package contents and the installed `cubby` binary.
+37. `demo:lifecycle` creates an inspectable workspace with a draft, export, handoff log, artifact index, and validation log.
+38. `acceptance:release` runs the documented release command sequence in a clean workspace.
+39. `validate` warns on empty, placeholder-heavy, or weakly structured artifacts and checks recorded exports against their source files.
 
 ## Acceptance Standard
 
@@ -126,5 +135,7 @@ A change is not release-ready just because files exist. The install loop must be
 * managed-file behavior is visible in CLI output
 * user-owned paths are preserved
 * a lifecycle demo can be rerun from a clean checkout after build
+* the package can be packed, installed, and invoked through the `cubby` binary
+* CLI commands stay documented in both `docs/cli-reference.md` and `src/commands/`
 
 Prefer focused tests over broad snapshot tests. Snapshot tests are acceptable only when the generated output is intentionally stable and easy to review.

@@ -27,6 +27,9 @@ jobs:
       - name: Run quality checks
         run: python scripts/quality_check.py
 
+      - name: Check CLI docs
+        run: python scripts/cli_docs_check.py
+
       - name: Check whitespace
         run: git diff --check
 
@@ -46,6 +49,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
       - name: Type check
         run: npm run check
 
@@ -55,8 +61,14 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Package smoke
+        run: npm run smoke:package
+
       - name: Workspace smoke
         run: npm run smoke:workspace
 
       - name: Lifecycle demo
         run: npm run demo:lifecycle
+
+      - name: Release acceptance
+        run: npm run acceptance:release

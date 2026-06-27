@@ -1,13 +1,11 @@
 import { readFile } from "node:fs/promises";
-import path from "node:path";
 import YAML from "yaml";
 import { CUBBY_VERSION, PROFILE_DEFAULTS } from "./constants.js";
 import { markdownHeader, yamlHeader } from "./fs-utils.js";
-
-const REPO_ROOT = process.cwd();
+import { packagePath } from "./package-root.js";
 
 async function readRepoFile(relativePath: string): Promise<string> {
-  return readFile(path.join(REPO_ROOT, relativePath), "utf8");
+  return readFile(packagePath(relativePath), "utf8");
 }
 
 export async function renderedAgents(profile: string): Promise<string> {

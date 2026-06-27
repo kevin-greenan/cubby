@@ -4,6 +4,7 @@ import Ajv2020 from "ajv/dist/2020.js";
 import YAML from "yaml";
 import { USER_OWNED_DIRS } from "./constants.js";
 import { exists, listFilesRecursive, readText, sha256, workspacePath, writeText } from "./fs-utils.js";
+import { packagePath } from "./package-root.js";
 import { findSensitivePatterns } from "./sensitive.js";
 import type { Manifest, ValidateOptions } from "./types.js";
 import type { CurrentTask } from "./workspace.js";
@@ -193,7 +194,7 @@ async function parseYaml<T>(workspace: string, relativePath: string, messages: V
 }
 
 async function validateWithSchema(data: unknown, schemaRelativePath: string, targetPath: string, messages: ValidationMessage[]): Promise<void> {
-  const schemaPath = path.resolve(process.cwd(), schemaRelativePath);
+  const schemaPath = packagePath(schemaRelativePath);
   const schema = JSON.parse(await readFile(schemaPath, "utf8")) as object;
   const ajv = new Ajv2020({ allErrors: true });
   const validate = ajv.compile(schema);
