@@ -32,6 +32,8 @@ REQUIRED_FILES = [
     "docs/adapter-contract.md",
     "docs/performance-library.md",
     "docs/testing-and-acceptance.md",
+    "docs/walkthrough-lesson-pack.md",
+    "docs/walkthrough-parent-email.md",
     "scripts/quality_check.py",
     "src/extensions/README.md",
     "src/tools/README.md",

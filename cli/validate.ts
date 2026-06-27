@@ -59,6 +59,14 @@ export async function runValidate(options: ValidateOptions): Promise<number> {
         continue;
       }
       const actualHash = sha256(content);
+      if (entry.path === "cubby/state/current-task.yaml" && actualHash !== entry.content_hash) {
+        messages.push({
+          status: "pass",
+          path: entry.path,
+          message: "task state changed from initial scaffold"
+        });
+        continue;
+      }
       messages.push({
         status: actualHash === entry.content_hash ? "pass" : "warn",
         path: entry.path,

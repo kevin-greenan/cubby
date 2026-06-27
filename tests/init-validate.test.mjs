@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -23,9 +23,13 @@ test("init creates a valid Codex workspace", async () => {
     assert.match(await readFile(path.join(workspace, "cubby/state/current-task.yaml"), "utf8"), /status: not_started/);
     assert.match(await readFile(path.join(workspace, "cubby/state/current-task.yaml"), "utf8"), /strategy: none/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/lesson-plan.md"), "utf8"), /managed-by: cubby/);
+    assert.match(await readFile(path.join(workspace, "cubby/framework/commands/redact.md"), "utf8"), /managed-by: cubby/);
+    assert.match(await readFile(path.join(workspace, "cubby/framework/commands/scaffold.md"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/workflows/lesson-plan.yaml"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/skills/README.md"), "utf8"), /Skills/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/subagents/README.md"), "utf8"), /Subagents/);
+    assert.match(await readFile(path.join(workspace, "cubby/framework/templates/validation-summary.md"), "utf8"), /Validation Summary/);
+    assert.match(await readFile(path.join(workspace, "cubby/framework/templates/handoff.md"), "utf8"), /Handoff/);
 
     const manifest = YAML.parse(await readFile(path.join(workspace, "cubby/manifest.yaml"), "utf8"));
     assert.ok(
@@ -193,6 +197,106 @@ test("handoff writes handoff log", async () => {
     assert.match(handoff, /Cubby Handoff/);
     assert.match(handoff, /Subagent strategy: none/);
   });
+});
+
+test("artifacts writes an index for outputs and exports", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    await writeFile(path.join(workspace, "cubby/outputs/lesson-packs/draft.md"), "# Draft\n", "utf8");
+    await writeFile(path.join(workspace, "cubby/exports/markdown/export.md"), "# Export\n", "utf8");
+
+    const result = await runCli(["artifacts", "--workspace", workspace]);
+
+    assert.match(result.stdout, /Cubby artifact index written/);
+    assert.match(result.stdout, /Artifacts: 2/);
+
+    const index = YAML.parse(await readFile(path.join(workspace, "cubby/logs/artifacts/index.yaml"), "utf8"));
+    assert.equal(index.artifact_count, 2);
+    assert.equal(index.match_count, 2);
+    assert.ok(index.artifacts.some((entry) => entry.path === "cubby/outputs/lesson-packs/draft.md"));
+    assert.ok(index.artifacts.some((entry) => entry.path === "cubby/exports/markdown/export.md"));
+
+    const query = await runCli(["artifacts", "--workspace", workspace, "--query", "draft"]);
+    assert.match(query.stdout, /Matches: 1/);
+    assert.match(query.stdout, /cubby\/outputs\/lesson-packs\/draft.md/);
+  });
+});
+
+test("export copies markdown output and records state", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    await writeFile(path.join(workspace, "cubby/outputs/lesson-packs/draft.md"), "# Draft\n", "utf8");
+
+    const result = await runCli(["export", "--workspace", workspace, "--source", "cubby/outputs/lesson-packs/draft.md"]);
+
+    assert.match(result.stdout, /Cubby export written/);
+    assert.equal(await readFile(path.join(workspace, "cubby/exports/markdown/lesson-packs/draft.md"), "utf8"), "# Draft\n");
+
+    const currentTask = YAML.parse(await readFile(path.join(workspace, "cubby/state/current-task.yaml"), "utf8"));
+    assert.ok(currentTask.outputs.exports.some((entry) => entry.path === "cubby/exports/markdown/lesson-packs/draft.md"));
+
+    const validate = await runCli(["validate", "--workspace", workspace]);
+    assert.match(validate.stdout, /Cubby validation passed\./);
+    assert.match(validate.stdout, /task state changed from initial scaffold/);
+  });
+});
+
+test("export blocks when human review is required", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    await writeFile(path.join(workspace, "cubby/outputs/parent-emails/draft.md"), "# Draft\n", "utf8");
+
+    const currentTaskPath = path.join(workspace, "cubby/state/current-task.yaml");
+    const currentTask = YAML.parse(await readFile(currentTaskPath, "utf8"));
+    currentTask.validation.human_review_required.required = true;
+    currentTask.validation.human_review_required.reason = "family communication";
+    await writeFile(currentTaskPath, YAML.stringify(currentTask), "utf8");
+
+    await assert.rejects(runCli(["export", "--workspace", workspace, "--source", "cubby/outputs/parent-emails/draft.md"]));
+
+    const forced = await runCli(["export", "--workspace", workspace, "--source", "cubby/outputs/parent-emails/draft.md", "--force"]);
+    assert.match(forced.stdout, /Review override: true/);
+    assert.equal(await readFile(path.join(workspace, "cubby/exports/markdown/parent-emails/draft.md"), "utf8"), "# Draft\n");
+  });
+});
+
+test("redact writes warning report without modifying source", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    const sourcePath = path.join(workspace, "cubby/outputs/parent-emails/draft.md");
+    await writeFile(sourcePath, "Email: family@example.com\nStudent Name: Jordan\n", "utf8");
+
+    const result = await runCli(["redact", "--workspace", workspace, "--source", "cubby/outputs/parent-emails/draft.md"]);
+
+    assert.match(result.stdout, /Cubby redaction scan completed with warnings/);
+    assert.match(result.stdout, /Findings: 2/);
+    assert.equal(await readFile(sourcePath, "utf8"), "Email: family@example.com\nStudent Name: Jordan\n");
+
+    const reports = await readdir(path.join(workspace, "cubby/logs/redactions"));
+    const report = YAML.parse(await readFile(path.join(workspace, "cubby/logs/redactions", reports[0]), "utf8"));
+    assert.equal(report.status, "warn");
+    assert.equal(report.finding_count, 2);
+  });
+});
+
+test("scaffold creates workflow and agent starters without overwriting", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "cubby-scaffold-"));
+  try {
+    await mkdir(path.join(root, "src/workflows"), { recursive: true });
+    await mkdir(path.join(root, "src/agents"), { recursive: true });
+
+    const workflow = await runCli(["scaffold", "workflow", "weekly-plan", "--root", root]);
+    const agent = await runCli(["scaffold", "agent", "math-specialist", "--root", root]);
+
+    assert.match(workflow.stdout, /src\/workflows\/weekly-plan.yaml/);
+    assert.match(agent.stdout, /src\/agents\/math-specialist.md/);
+    assert.match(await readFile(path.join(root, "src/workflows/weekly-plan.yaml"), "utf8"), /id: weekly-plan/);
+    assert.match(await readFile(path.join(root, "src/agents/math-specialist.md"), "utf8"), /# Math Specialist/);
+
+    await assert.rejects(runCli(["scaffold", "workflow", "weekly-plan", "--root", root]));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });
 
 async function withWorkspace(callback) {

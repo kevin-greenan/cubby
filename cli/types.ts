@@ -57,3 +57,26 @@ export interface HandoffOptions {
 export interface ManifestOptions {
   workspace: string;
 }
+
+export interface ArtifactsOptions {
+  workspace: string;
+  query: string | undefined;
+}
+
+export interface ExportOptions {
+  workspace: string;
+  source: string | undefined;
+  force: boolean;
+  overwrite: boolean;
+}
+
+export interface ScaffoldOptions {
+  kind: string | undefined;
+  name: string | undefined;
+  root: string;
+}
+
+export interface RedactOptions {
+  workspace: string;
+  source: string | undefined;
+}

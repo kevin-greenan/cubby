@@ -106,3 +106,5 @@ high
 Sensitive workflows must be review-gated before handoff or export.
 
 The current task state must also include `subagents.strategy`, `subagents.fanout`, and `subagents.calls` so orchestration can be resumed, audited, and handed off.
+
+`cubby/state/current-task.yaml` is scaffolded by Cubby but intentionally mutable during normal work. Validation should check that it remains schema-valid without treating task progress as a managed-file drift warning.

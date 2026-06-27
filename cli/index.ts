@@ -1,14 +1,19 @@
 #!/usr/bin/env node
 import { runInit } from "./init.js";
+import { runArtifacts } from "./artifacts.js";
+import { runExport } from "./export.js";
 import { runHandoff } from "./handoff.js";
 import { runManifest } from "./manifest.js";
+import { runRedact } from "./redact.js";
 import { runResume } from "./resume.js";
+import { runScaffold } from "./scaffold.js";
 import { runStatus } from "./status.js";
 import { runUpgrade } from "./upgrade.js";
 import { runValidate } from "./validate.js";
 
 interface ParsedArgs {
   command: string | undefined;
+  args: string[];
   options: Record<string, string | boolean>;
 }
 
@@ -37,6 +42,23 @@ async function main(argv: string[]): Promise<number> {
       return runHandoff({
         workspace: stringOption(parsed.options.workspace, ".")
       });
+    case "artifacts":
+      return runArtifacts({
+        workspace: stringOption(parsed.options.workspace, "."),
+        query: stringOptionOrUndefined(parsed.options.query)
+      });
+    case "redact":
+      return runRedact({
+        workspace: stringOption(parsed.options.workspace, "."),
+        source: stringOptionOrUndefined(parsed.options.source)
+      });
+    case "export":
+      return runExport({
+        workspace: stringOption(parsed.options.workspace, "."),
+        source: stringOptionOrUndefined(parsed.options.source),
+        force: parsed.options.force === true,
+        overwrite: parsed.options.overwrite === true
+      });
     case "manifest":
       return runManifest({
         workspace: stringOption(parsed.options.workspace, ".")
@@ -45,6 +67,12 @@ async function main(argv: string[]): Promise<number> {
       return runUpgrade({
         workspace: stringOption(parsed.options.workspace, "."),
         dryRun: parsed.options["dry-run"] === true
+      });
+    case "scaffold":
+      return runScaffold({
+        kind: parsed.args[0],
+        name: parsed.args[1],
+        root: stringOption(parsed.options.root, ".")
       });
     case "help":
     case undefined:
@@ -59,10 +87,12 @@ async function main(argv: string[]): Promise<number> {
 
 function parseArgs(argv: string[]): ParsedArgs {
   const [command, ...rest] = argv;
+  const args: string[] = [];
   const options: Record<string, string | boolean> = {};
   for (let index = 0; index < rest.length; index += 1) {
     const item = rest[index];
     if (!item.startsWith("--")) {
+      args.push(item);
       continue;
     }
     const key = item.slice(2);
@@ -74,11 +104,15 @@ function parseArgs(argv: string[]): ParsedArgs {
     options[key] = value;
     index += 1;
   }
-  return { command, options };
+  return { command, args, options };
 }
 
 function stringOption(value: string | boolean | undefined, fallback: string): string {
   return typeof value === "string" ? value : fallback;
+}
+
+function stringOptionOrUndefined(value: string | boolean | undefined): string | undefined {
+  return typeof value === "string" ? value : undefined;
 }
 
 function printHelp(): void {
@@ -90,8 +124,13 @@ Commands:
   status --workspace <path>
   resume --workspace <path>
   handoff --workspace <path>
+  artifacts --workspace <path> [--query <term>]
+  export --workspace <path> --source <cubby/outputs/file.md> [--force] [--overwrite]
+  redact --workspace <path> --source <path>
   manifest --workspace <path>
   upgrade --workspace <path> --dry-run
+  scaffold workflow <name> [--root <repo-path>]
+  scaffold agent <name> [--root <repo-path>]
 `);
 }
 

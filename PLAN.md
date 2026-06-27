@@ -242,6 +242,10 @@ cubby/
       status.md
       resume.md
       handoff.md
+      artifacts.md
+      export.md
+      redact.md
+      scaffold.md
     rules/
       core/
         teacher-authority.md
@@ -1691,6 +1695,8 @@ node dist/cli/index.js validate --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js status --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js resume --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js handoff --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js artifacts --workspace ./examples/k5-special-ed-workspace --query lesson
+node dist/cli/index.js redact --workspace ./examples/k5-special-ed-workspace --source cubby/outputs/parent-emails/example/email-draft.md
 node dist/cli/index.js manifest --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js upgrade --workspace ./examples/k5-special-ed-workspace --dry-run
 
