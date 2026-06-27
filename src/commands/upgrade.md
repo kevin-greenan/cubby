@@ -2,7 +2,7 @@
 
 Purpose: Preview or apply managed framework updates while preserving user-owned files and local edits.
 
-MVP behavior:
+Current behavior:
 
 * `--dry-run` only
 * reports created, skipped, updated, preserved-local-edit, and failed outcomes

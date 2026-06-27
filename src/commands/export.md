@@ -18,7 +18,7 @@ Workflow:
 
 Gates:
 
-* This MVP command only exports Markdown.
+* This command currently exports Markdown only.
 * Use `--force` only after the teacher or qualified professional completes the required review.
 * Do not export parent communication, IEP-adjacent content, behavior-support recommendations, progress interpretation, or student-specific accommodation recommendations without review.
 

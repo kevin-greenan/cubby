@@ -2,15 +2,15 @@
 
 Adapters translate shared Cubby source into files and conventions for a specific AI tool or platform.
 
-## MVP Adapter
+## Local Release Adapter
 
-The MVP implements only:
+The current local release implements only:
 
 ```text
 src/adapters/codex/
 ```
 
-Do not create empty adapter folders for future providers during Milestones 1 and 2.
+Do not create empty adapter folders for future providers until their install behavior and validation expectations are defined.
 
 ## Shared Source
 
@@ -42,7 +42,7 @@ Provider-specific content belongs under:
 src/adapters/<adapter-name>/
 ```
 
-For Codex, the key MVP file is:
+For Codex, the key adapter file is:
 
 ```text
 src/adapters/codex/AGENTS.md.template
@@ -66,7 +66,7 @@ An adapter should not:
 
 * Own the core product model.
 * Duplicate shared rules unnecessarily.
-* Introduce live integrations during MVP.
+* Introduce live integrations in the local-only release.
 * Copy repository-development instructions into installed workspaces.
 
 ## Future Adapter Checklist

@@ -2,7 +2,7 @@
 
 Cubby is a portable AI workflow framework for K-5 educators, special education teachers, instructional coaches, BCBAs, interventionists, and related classroom-support professionals.
 
-The first MVP is a Codex-ready workspace scaffold. It installs local workflow instructions, state files, templates, and validation conventions into a teacher workspace while preserving local customization.
+The first local release is a Codex-ready workspace scaffold. It installs workflow instructions, state files, templates, and validation conventions into a teacher workspace while preserving local customization.
 
 Cubby is also designed to grow a rich performance library: subagent orchestration protocols, hooks, extensions, tools, skills, validators, templates, profiles, and adapter mappings that make agent-supported educator workflows faster, safer, and more repeatable.
 
@@ -62,7 +62,7 @@ npm run demo:lifecycle
 
 ## Development Notes
 
-Use `PLAN.md` as the product source of truth. Use `docs/` for the implementation contracts that define the MVP install loop, managed-file behavior, adapter boundary, and test expectations.
+Use `PLAN.md` as the product source of truth. Use `docs/` for release-facing contracts that define the install loop, managed-file behavior, adapter boundary, command surface, walkthroughs, and test expectations.
 
 Start with [docs/performance-library.md](docs/performance-library.md) when adding hooks, extensions, tools, skills, or reusable workflow packs.
 

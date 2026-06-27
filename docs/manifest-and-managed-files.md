@@ -76,6 +76,6 @@ failed
 
 Tests should assert these values where practical.
 
-## Upgrade MVP
+## Upgrade Boundary
 
-For MVP, `upgrade` may be dry-run only. It should inspect manifest state and report what would happen without modifying files.
+For the current local release, `upgrade` is dry-run only. It should inspect manifest state and report what would happen without modifying files.

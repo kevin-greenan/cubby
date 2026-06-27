@@ -43,4 +43,11 @@ cubby redact --workspace ./examples/k5-special-ed-workspace --source cubby/outpu
 cubby artifacts --workspace ./examples/k5-special-ed-workspace --query parent-emails
 ```
 
-Parent and family communication always requires human review before use. If an export is needed after review, use `cubby export --force` and keep the review context in the handoff.
+Parent and family communication always requires human review before use. Record review before exporting:
+
+```text
+cubby complete --workspace ./examples/k5-special-ed-workspace --reviewed --note "Teacher reviewed the family email draft for privacy and tone."
+cubby export --workspace ./examples/k5-special-ed-workspace --source cubby/outputs/parent-emails/<task-slug>/email-draft.md
+```
+
+Use `export --force` only when review happened outside Cubby and cannot be recorded first.

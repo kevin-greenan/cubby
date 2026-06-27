@@ -62,7 +62,7 @@ Preview managed-file upgrade outcomes.
 cubby upgrade --workspace <path> --dry-run
 ```
 
-Only dry-run upgrade behavior is implemented in the current MVP branch.
+Only dry-run upgrade behavior is implemented in the current local release.
 
 ## Workflow Commands
 

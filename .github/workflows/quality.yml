@@ -57,3 +57,6 @@ jobs:
 
       - name: Workspace smoke
         run: npm run smoke:workspace
+
+      - name: Lifecycle demo
+        run: npm run demo:lifecycle

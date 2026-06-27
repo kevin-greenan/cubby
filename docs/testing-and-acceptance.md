@@ -1,6 +1,6 @@
 # Testing and Acceptance
 
-This document defines practical checks for MVP readiness.
+This document defines practical checks for release readiness.
 
 ## Minimum Commands
 
@@ -12,7 +12,7 @@ python scripts/quality_check.py
 
 It runs without third-party dependencies and is also executed in GitHub Actions.
 
-The MVP acceptance path is:
+The release acceptance path is:
 
 ```text
 npm install
@@ -37,7 +37,7 @@ node dist/cli/index.js packs --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js upgrade --workspace ./examples/k5-special-ed-workspace --dry-run
 ```
 
-If a script is not implemented yet, report that plainly and add it before claiming MVP readiness.
+If a script is not implemented yet, report that plainly and add it before claiming release readiness.
 
 ## Core Test Areas
 
@@ -117,7 +117,7 @@ The test suite should cover:
 
 ## Acceptance Standard
 
-A change is not MVP-complete just because files exist. The install loop must be reproducible:
+A change is not release-ready just because files exist. The install loop must be reproducible:
 
 * build passes
 * init succeeds

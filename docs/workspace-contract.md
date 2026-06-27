@@ -16,7 +16,7 @@ src/adapters/codex/AGENTS.md.template
 
 ## Required Workspace Files
 
-A valid MVP workspace should contain:
+A valid local-release workspace should contain:
 
 ```text
 AGENTS.md
