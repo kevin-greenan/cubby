@@ -77,7 +77,8 @@ async function main(argv: string[]): Promise<number> {
       return runScaffold({
         kind: parsed.args[0],
         name: parsed.args[1],
-        root: stringOption(parsed.options.root, ".")
+        root: stringOption(parsed.options.root, "."),
+        need: stringOptionOrUndefined(parsed.options.need)
       });
     case "help":
     case undefined:
@@ -137,7 +138,7 @@ Commands:
   upgrade --workspace <path> --dry-run
   scaffold workflow <name> [--root <repo-path>]
   scaffold agent <name> [--root <repo-path>]
-  scaffold pack <name> [--root <repo-path>]
+  scaffold pack <name> [--need <unmet-use-case>] [--root <repo-path>]
 `);
 }
 

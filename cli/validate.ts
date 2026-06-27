@@ -14,6 +14,15 @@ interface ValidationMessage {
 }
 
 interface PackDefinition {
+  id?: string;
+  name?: string;
+  description?: string;
+  unmet_use_case?: string;
+  status?: "draft" | "active" | "deprecated";
+  scope?: {
+    include?: string[];
+    exclude?: string[];
+  };
   workflows?: string[];
   commands?: string[];
   agents?: string[];
@@ -21,7 +30,14 @@ interface PackDefinition {
   validators?: string[];
   hooks?: string[];
   tools?: string[];
+  quality_checks?: string[];
+  review_gates?: {
+    human_review_required_for_sensitive_outputs?: boolean;
+    notes?: string;
+  };
 }
+
+const PLACEHOLDER_PATTERN = /\b(tbd|todo|placeholder|lorem|describe|add pack-specific|add one to three|ai slop)\b/i;
 
 const REQUIRED_PATHS = [
   "AGENTS.md",
@@ -37,6 +53,7 @@ const REQUIRED_PATHS = [
   "cubby/framework/hooks/validate.yaml",
   "cubby/framework/skills/README.md",
   "cubby/framework/tools/README.md",
+  "cubby/framework/tools/pack-design.md",
   "cubby/framework/extensions/README.md"
 ];
 
@@ -165,6 +182,7 @@ async function validatePackReferences(workspace: string, messages: ValidationMes
     if (!parsed) {
       continue;
     }
+    validatePackQuality(relativePath, parsed, messages);
     await validatePackReferenceList(workspace, relativePath, "workflow", parsed.workflows, (id) => [`cubby/framework/workflows/${id}.yaml`], messages);
     await validatePackReferenceList(workspace, relativePath, "command", parsed.commands, (id) => [`cubby/framework/commands/${id}.md`], messages);
     await validatePackReferenceList(workspace, relativePath, "agent", parsed.agents, (id) => [`cubby/framework/agents/${id}.md`], messages);
@@ -173,6 +191,61 @@ async function validatePackReferences(workspace: string, messages: ValidationMes
     await validatePackReferenceList(workspace, relativePath, "hook", parsed.hooks, (id) => [`cubby/framework/hooks/${id}.yaml`], messages);
     await validatePackReferenceList(workspace, relativePath, "tool", parsed.tools, (id) => [`cubby/framework/tools/${id}.md`, `cubby/framework/commands/${id}.md`], messages);
   }
+}
+
+function validatePackQuality(packPath: string, pack: PackDefinition, messages: ValidationMessage[]): void {
+  const isActive = pack.status === "active";
+  const failOrWarn: "fail" | "warn" = isActive ? "fail" : "warn";
+  const issues: string[] = [];
+  const textFields = [
+    pack.id,
+    pack.name,
+    pack.description,
+    pack.unmet_use_case,
+    ...(pack.scope?.include ?? []),
+    ...(pack.scope?.exclude ?? []),
+    ...(pack.quality_checks ?? []),
+    pack.review_gates?.notes
+  ].filter((value): value is string => typeof value === "string");
+
+  if (!pack.description || pack.description.trim().length < 40) {
+    issues.push("description must be specific");
+  }
+  if (!pack.unmet_use_case || pack.unmet_use_case.trim().length < 40) {
+    issues.push("unmet use case must be explicit");
+  }
+  if ((pack.scope?.include ?? []).length === 0 || (pack.scope?.exclude ?? []).length === 0) {
+    issues.push("scope must include include and exclude boundaries");
+  }
+  if ((pack.quality_checks ?? []).length < 2) {
+    issues.push("quality checks must include at least two concrete checks");
+  }
+  if ((pack.workflows ?? []).length === 0 && (pack.commands ?? []).length === 0) {
+    issues.push("pack must reference at least one workflow or command");
+  }
+  if ((pack.validators ?? []).length === 0) {
+    issues.push("pack must reference at least one validator");
+  }
+  if (!pack.review_gates?.notes || pack.review_gates.notes.trim().length < 20) {
+    issues.push("review gate notes must be specific");
+  }
+  if (pack.review_gates?.human_review_required_for_sensitive_outputs !== true) {
+    issues.push("sensitive outputs must require human review");
+  }
+  if (textFields.some((value) => PLACEHOLDER_PATTERN.test(value))) {
+    issues.push("placeholder language must be removed");
+  }
+
+  if (issues.length === 0) {
+    messages.push({ status: "pass", path: packPath, message: "pack quality gates passed" });
+    return;
+  }
+
+  messages.push({
+    status: failOrWarn,
+    path: packPath,
+    message: `pack quality gates need attention: ${issues.join("; ")}`
+  });
 }
 
 async function validatePackReferenceList(

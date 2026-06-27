@@ -1,7 +1,15 @@
 id: special-education
 name: Special Education Pack
 description: Draft/review support for accommodations, IEP-adjacent planning, goal-aligned activities, and accessible language.
+unmet_use_case: Teachers need careful IEP-adjacent drafting support that organizes accommodations and goal practice without making official decisions.
 status: active
+scope:
+  include:
+    - Accommodation review drafts, goal-aligned practice ideas, accessibility language checks, and handoff notes for qualified review.
+    - Teacher-facing preparation artifacts that clarify assumptions and evidence.
+  exclude:
+    - IEP authoring approval, placement decisions, eligibility determinations, legal advice, or service minutes decisions.
+    - Replacing the judgment of special education teams or qualified professionals.
 workflows:
   - accommodation-check
   - iep-goal-support
@@ -30,6 +38,10 @@ tools:
   - redact
   - artifacts
 skills: []
+quality_checks:
+  - Keep IEP-adjacent recommendations grounded in provided goals, accommodations, and classroom context.
+  - Run iep-support-check, accessibility-check, and privacy-check before handoff or export.
+  - Label outputs as drafts for qualified human review.
 review_gates:
   human_review_required_for_sensitive_outputs: true
   notes: IEP-adjacent text and student-specific accommodation recommendations require qualified human review.

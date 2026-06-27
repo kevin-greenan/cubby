@@ -25,7 +25,7 @@ export async function runScaffold(options: ScaffoldOptions): Promise<number> {
     return 1;
   }
 
-  await writeText(absoluteTarget, scaffoldContent(kind, name));
+  await writeText(absoluteTarget, scaffoldContent(kind, name, options.need));
   console.log("Cubby scaffold created.");
   console.log(`Kind: ${kind}`);
   console.log(`Path: ${target}`);
@@ -42,14 +42,14 @@ function targetPath(kind: "workflow" | "agent" | "pack", name: string): string {
   return `src/packs/${name}.yaml`;
 }
 
-function scaffoldContent(kind: "workflow" | "agent" | "pack", name: string): string {
+function scaffoldContent(kind: "workflow" | "agent" | "pack", name: string, need: string | undefined): string {
   if (kind === "workflow") {
     return workflowContent(name);
   }
   if (kind === "agent") {
     return agentContent(name);
   }
-  return packContent(name);
+  return packContent(name, need);
 }
 
 function workflowContent(name: string): string {
@@ -106,12 +106,17 @@ function agentContent(name: string): string {
   ].join("\n");
 }
 
-function packContent(name: string): string {
+function packContent(name: string, need: string | undefined): string {
   return YAML.stringify({
     id: name,
     name: titleize(name),
     description: "Describe the workflow family this pack adds or extends.",
+    unmet_use_case: need ?? "Describe the unmet use case this pack addresses.",
     status: "draft",
+    scope: {
+      include: ["Add one to three concrete use cases this pack should cover."],
+      exclude: ["Add adjacent use cases this pack should not cover."]
+    },
     workflows: [],
     commands: [],
     agents: [],
@@ -120,6 +125,11 @@ function packContent(name: string): string {
     hooks: [],
     tools: [],
     skills: [],
+    quality_checks: [
+      "Confirm no active pack already covers this use case.",
+      "Keep assets tightly scoped to the stated include/exclude boundaries.",
+      "Run cubby validate against a generated workspace before activating the pack."
+    ],
     review_gates: {
       human_review_required_for_sensitive_outputs: true,
       notes: "Add pack-specific review requirements here."

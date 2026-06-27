@@ -91,12 +91,13 @@ The test suite should cover:
 21. `redact` writes a warning report under `cubby/logs/redactions/`.
 22. `export` copies reviewed Markdown outputs to `cubby/exports/markdown/`.
 23. `export` blocks when human review is required unless `--force` is provided after review.
-24. `scaffold workflow <name>`, `scaffold agent <name>`, and `scaffold pack <name>` create starter source files without overwriting existing files.
-25. `packs` lists installed workflow packs.
-26. Pack references resolve to installed framework files during validation.
-27. `examples/sample-outputs/` contains fictional lesson-pack and parent-email artifacts.
-28. `manifest` summarizes managed files, missing files, and local edits.
-29. `upgrade --dry-run` reports managed-file outcomes without modifying files.
+24. `scaffold workflow <name>`, `scaffold agent <name>`, and `scaffold pack <name> --need <unmet-use-case>` create starter source files without overwriting existing files.
+25. Active workflow packs must declare an unmet use case, include/exclude scope, quality checks, validators, and human-review gates; underspecified active packs fail validation.
+26. `packs` lists installed workflow packs.
+27. Pack references resolve to installed framework files during validation.
+28. `examples/sample-outputs/` contains fictional lesson-pack and parent-email artifacts.
+29. `manifest` summarizes managed files, missing files, and local edits.
+30. `upgrade --dry-run` reports managed-file outcomes without modifying files.
 
 ## Acceptance Standard
 

@@ -30,6 +30,7 @@ test("init creates a valid Codex workspace", async () => {
     assert.match(await readFile(path.join(workspace, "cubby/framework/packs/lesson-curriculum.yaml"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/skills/README.md"), "utf8"), /Skills/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/subagents/README.md"), "utf8"), /Subagents/);
+    assert.match(await readFile(path.join(workspace, "cubby/framework/tools/pack-design.md"), "utf8"), /Pack Design/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/templates/validation-summary.md"), "utf8"), /Validation Summary/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/templates/handoff.md"), "utf8"), /Handoff/);
 
@@ -144,7 +145,63 @@ test("validate fails on broken pack references", async () => {
     const packPath = path.join(workspace, "cubby/framework/packs/broken.yaml");
     await writeFile(
       packPath,
-      "id: broken\nname: Broken\ndescription: Broken pack\nstatus: active\nworkflows:\n  - missing-workflow\n",
+      [
+        "id: broken",
+        "name: Broken",
+        "description: Broken pack for regression testing missing references in validation.",
+        "unmet_use_case: Teachers need this regression pack to prove missing workflow references fail validation.",
+        "status: active",
+        "scope:",
+        "  include:",
+        "    - Regression coverage for pack reference validation.",
+        "  exclude:",
+        "    - Production workflow behavior.",
+        "workflows:",
+        "  - missing-workflow",
+        "validators:",
+        "  - privacy-check",
+        "quality_checks:",
+        "  - Confirm reference validation fails when a workflow is missing.",
+        "  - Keep this fixture focused on the missing reference path.",
+        "review_gates:",
+        "  human_review_required_for_sensitive_outputs: true",
+        "  notes: Regression fixture still models the human-review gate required by active packs.",
+        ""
+      ].join("\n"),
+      "utf8"
+    );
+
+    await assert.rejects(runCli(["validate", "--workspace", workspace]));
+  });
+});
+
+test("validate fails on underspecified active packs", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    const packPath = path.join(workspace, "cubby/framework/packs/sloppy.yaml");
+    await writeFile(
+      packPath,
+      [
+        "id: sloppy",
+        "name: Sloppy",
+        "description: TBD placeholder pack",
+        "unmet_use_case: TBD",
+        "status: active",
+        "scope:",
+        "  include:",
+        "    - TBD",
+        "  exclude:",
+        "    - TBD",
+        "workflows: []",
+        "validators: []",
+        "quality_checks:",
+        "  - TBD",
+        "  - TODO",
+        "review_gates:",
+        "  human_review_required_for_sensitive_outputs: false",
+        "  notes: TBD",
+        ""
+      ].join("\n"),
       "utf8"
     );
 
@@ -329,7 +386,15 @@ test("scaffold creates workflow and agent starters without overwriting", async (
 
     const workflow = await runCli(["scaffold", "workflow", "weekly-plan", "--root", root]);
     const agent = await runCli(["scaffold", "agent", "math-specialist", "--root", root]);
-    const pack = await runCli(["scaffold", "pack", "operations-pack", "--root", root]);
+    const pack = await runCli([
+      "scaffold",
+      "pack",
+      "operations-pack",
+      "--need",
+      "Teachers need a coordinated daily operations pack for recurring classroom routines.",
+      "--root",
+      root
+    ]);
 
     assert.match(workflow.stdout, /src\/workflows\/weekly-plan.yaml/);
     assert.match(agent.stdout, /src\/agents\/math-specialist.md/);
@@ -337,6 +402,8 @@ test("scaffold creates workflow and agent starters without overwriting", async (
     assert.match(await readFile(path.join(root, "src/workflows/weekly-plan.yaml"), "utf8"), /id: weekly-plan/);
     assert.match(await readFile(path.join(root, "src/agents/math-specialist.md"), "utf8"), /# Math Specialist/);
     assert.match(await readFile(path.join(root, "src/packs/operations-pack.yaml"), "utf8"), /id: operations-pack/);
+    assert.match(await readFile(path.join(root, "src/packs/operations-pack.yaml"), "utf8"), /unmet_use_case: Teachers need a coordinated daily operations pack/);
+    assert.match(await readFile(path.join(root, "src/packs/operations-pack.yaml"), "utf8"), /quality_checks:/);
 
     await assert.rejects(runCli(["scaffold", "workflow", "weekly-plan", "--root", root]));
   } finally {

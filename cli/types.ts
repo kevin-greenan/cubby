@@ -78,6 +78,7 @@ export interface ScaffoldOptions {
   kind: string | undefined;
   name: string | undefined;
   root: string;
+  need: string | undefined;
 }
 
 export interface RedactOptions {
