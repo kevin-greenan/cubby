@@ -58,6 +58,7 @@ Add tests for:
 * Markdown export gate behavior
 * redaction scan reports
 * scaffold command behavior
+* sample output examples
 * manifest inspection
 * upgrade dry-run behavior
 
@@ -89,8 +90,9 @@ The test suite should cover:
 22. `export` copies reviewed Markdown outputs to `cubby/exports/markdown/`.
 23. `export` blocks when human review is required unless `--force` is provided after review.
 24. `scaffold workflow <name>` and `scaffold agent <name>` create starter source files without overwriting existing files.
-25. `manifest` summarizes managed files, missing files, and local edits.
-26. `upgrade --dry-run` reports managed-file outcomes without modifying files.
+25. `examples/sample-outputs/` contains fictional lesson-pack and parent-email artifacts.
+26. `manifest` summarizes managed files, missing files, and local edits.
+27. `upgrade --dry-run` reports managed-file outcomes without modifying files.
 
 ## Acceptance Standard
 

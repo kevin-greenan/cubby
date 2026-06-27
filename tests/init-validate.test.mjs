@@ -316,6 +316,13 @@ test("scaffold creates workflow and agent starters without overwriting", async (
   }
 });
 
+test("sample outputs include lesson and parent email examples", async () => {
+  assert.match(await readFile(path.resolve("examples/sample-outputs/lesson-pack/main-idea-grade-2/lesson-plan.md"), "utf8"), /Main Idea Lesson Plan/);
+  assert.match(await readFile(path.resolve("examples/sample-outputs/lesson-pack/main-idea-grade-2/validation-summary.md"), "utf8"), /Validation Summary/);
+  assert.match(await readFile(path.resolve("examples/sample-outputs/parent-emails/conference-prep/email-draft.md"), "utf8"), /Conference Prep Email Draft/);
+  assert.match(await readFile(path.resolve("examples/sample-outputs/parent-emails/conference-prep/review-checklist.md"), "utf8"), /Review Checklist/);
+});
+
 async function withWorkspace(callback) {
   const tempRoot = await mkdtemp(path.join(os.tmpdir(), "cubby-test-"));
   try {
