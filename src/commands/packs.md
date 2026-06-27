@@ -9,7 +9,7 @@ Inputs:
 Workflow:
 
 1. Read pack definitions under `cubby/framework/packs/`.
-2. Print each pack's status, workflows, commands, and review-gate notes.
+2. Print each pack's status, unmet use case, include/exclude scope, workflows, commands, quality checks, and review-gate notes.
 3. Use packs to choose the right workflow family before opening command and workflow files.
 4. If no pack fits, use `cubby/framework/tools/pack-design.md` before scaffolding a new pack.
 

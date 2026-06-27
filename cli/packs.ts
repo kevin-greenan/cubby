@@ -7,9 +7,15 @@ interface Pack {
   id?: string;
   name?: string;
   description?: string;
+  unmet_use_case?: string;
   status?: string;
+  scope?: {
+    include?: string[];
+    exclude?: string[];
+  };
   workflows?: string[];
   commands?: string[];
+  quality_checks?: string[];
   review_gates?: {
     notes?: string;
   };
@@ -41,11 +47,21 @@ export async function runPacks(options: PacksOptions): Promise<number> {
     if (pack.description) {
       console.log(`  ${pack.description}`);
     }
+    if (pack.unmet_use_case) {
+      console.log(`  need: ${pack.unmet_use_case}`);
+    }
+    console.log(`  include: ${formatList(pack.scope?.include)}`);
+    console.log(`  exclude: ${formatList(pack.scope?.exclude)}`);
     console.log(`  workflows: ${(pack.workflows ?? []).join(", ") || "none"}`);
     console.log(`  commands: ${(pack.commands ?? []).join(", ") || "none"}`);
+    console.log(`  quality: ${formatList(pack.quality_checks)}`);
     if (pack.review_gates?.notes) {
       console.log(`  review: ${pack.review_gates.notes}`);
     }
   }
   return 0;
+}
+
+function formatList(items: string[] | undefined): string {
+  return items && items.length > 0 ? items.join("; ") : "none";
 }

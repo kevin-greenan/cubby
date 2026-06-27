@@ -268,7 +268,11 @@ test("packs lists installed workflow packs", async () => {
     assert.match(result.stdout, /Cubby packs/);
     assert.match(result.stdout, /lesson-curriculum/);
     assert.match(result.stdout, /family-communication/);
+    assert.match(result.stdout, /need: Teachers need a coordinated lesson-materials pack/);
+    assert.match(result.stdout, /include: Lesson plans, lesson packs/);
+    assert.match(result.stdout, /exclude: Official curriculum adoption/);
     assert.match(result.stdout, /workflows: lesson-plan, lesson-pack/);
+    assert.match(result.stdout, /quality: Keep objectives, activities, materials/);
   });
 });
 
