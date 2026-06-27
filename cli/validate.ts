@@ -4,6 +4,7 @@ import Ajv2020 from "ajv/dist/2020.js";
 import YAML from "yaml";
 import { USER_OWNED_DIRS } from "./constants.js";
 import { exists, listFilesRecursive, readText, sha256, workspacePath, writeText } from "./fs-utils.js";
+import { findSensitivePatterns } from "./sensitive.js";
 import type { Manifest, ValidateOptions } from "./types.js";
 
 interface ValidationMessage {
@@ -81,6 +82,7 @@ export async function runValidate(options: ValidateOptions): Promise<number> {
   }
 
   await validateFrameworkDefinitions(workspace, messages);
+  await runArtifactValidation(workspace, messages);
   await writeValidationLog(workspace, messages);
 
   printMessages(workspace, messages);
@@ -136,6 +138,37 @@ async function validateYamlFiles(workspace: string, relativeDir: string, schemaP
     if (parsed) {
       await validateWithSchema(parsed, schemaPath, relativePath, messages);
     }
+  }
+}
+
+async function runArtifactValidation(workspace: string, messages: ValidationMessage[]): Promise<void> {
+  await scanArtifactDir(workspace, "cubby/outputs", messages);
+  await scanArtifactDir(workspace, "cubby/exports", messages);
+}
+
+async function scanArtifactDir(workspace: string, relativeDir: string, messages: ValidationMessage[]): Promise<void> {
+  const absoluteDir = workspacePath(workspace, relativeDir);
+  if (!(await exists(absoluteDir))) {
+    return;
+  }
+  const files = (await listFilesRecursive(absoluteDir)).filter((file) => [".md", ".txt", ".yaml", ".yml", ".csv"].includes(path.extname(file).toLowerCase()));
+  if (files.length === 0) {
+    messages.push({ status: "pass", path: relativeDir, message: "artifact validation found no files" });
+    return;
+  }
+
+  for (const file of files) {
+    const relativePath = path.relative(workspace, file).split(path.sep).join("/");
+    const content = await readText(file);
+    if (content === undefined) {
+      continue;
+    }
+    const findings = findSensitivePatterns(content);
+    messages.push({
+      status: findings.length > 0 ? "warn" : "pass",
+      path: relativePath,
+      message: findings.length > 0 ? `sensitive-pattern scan found ${findings.length} finding(s)` : "sensitive-pattern scan passed"
+    });
   }
 }
 

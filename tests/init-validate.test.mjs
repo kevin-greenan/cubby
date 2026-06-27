@@ -125,6 +125,18 @@ test("validate writes a validation log", async () => {
   });
 });
 
+test("validate warns on sensitive patterns in artifacts", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    await writeFile(path.join(workspace, "cubby/outputs/parent-emails/draft.md"), "Email: family@example.com\n", "utf8");
+
+    const result = await runCli(["validate", "--workspace", workspace]);
+
+    assert.match(result.stdout, /Cubby validation passed with warnings/);
+    assert.match(result.stdout, /sensitive-pattern scan found 1 finding/);
+  });
+});
+
 test("status summarizes current task and manifest", async () => {
   await withWorkspace(async (workspace) => {
     await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
