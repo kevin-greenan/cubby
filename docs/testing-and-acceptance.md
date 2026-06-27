@@ -69,6 +69,7 @@ Add tests for:
 * manifest inspection
 * upgrade dry-run behavior
 * lifecycle demo artifact generation
+* artifact-specific validation for Markdown, CSV, YAML, draft records, and export records
 
 ## Required Behavioral Tests
 
@@ -108,6 +109,7 @@ The test suite should cover:
 32. `manifest` summarizes managed files, missing files, and local edits.
 33. `upgrade --dry-run` reports managed-file outcomes without modifying files.
 34. `demo:lifecycle` creates an inspectable workspace with a draft, export, handoff log, artifact index, and validation log.
+35. `validate` warns on empty, placeholder-heavy, or weakly structured artifacts and checks recorded exports against their source files.
 
 ## Acceptance Standard
 

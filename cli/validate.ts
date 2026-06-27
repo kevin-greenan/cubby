@@ -40,6 +40,7 @@ interface PackDefinition {
 }
 
 const PLACEHOLDER_PATTERN = /\b(tbd|todo|placeholder|lorem|describe|add pack-specific|add one to three|ai slop)\b/i;
+const ARTIFACT_PLACEHOLDER_PATTERN = /\b(tbd|todo|placeholder|lorem|insert|replace me)\b|{{|}}|\[[^\]]*(insert|todo|tbd)[^\]]*\]/i;
 
 const REQUIRED_PATHS = [
   "AGENTS.md",
@@ -111,6 +112,7 @@ export async function runValidate(options: ValidateOptions): Promise<number> {
   if (currentTask) {
     await validateWithSchema(currentTask, "src/schemas/state.schema.json", "cubby/state/current-task.yaml", messages);
     await validateActiveWorkflowState(workspace, currentTask, messages);
+    await validateOutputRecords(workspace, currentTask, messages);
   }
 
   await validateFrameworkDefinitions(workspace, messages);
@@ -338,6 +340,52 @@ async function runArtifactValidation(workspace: string, messages: ValidationMess
   await scanArtifactDir(workspace, "cubby/exports", messages);
 }
 
+async function validateOutputRecords(workspace: string, currentTask: CurrentTask, messages: ValidationMessage[]): Promise<void> {
+  for (const draft of currentTask.outputs?.drafts ?? []) {
+    if (!isRecord(draft) || typeof draft.path !== "string") {
+      messages.push({ status: "warn", path: "cubby/state/current-task.yaml", message: "draft output record missing path" });
+      continue;
+    }
+    const draftPath = draft.path;
+    if (!draftPath.startsWith("cubby/outputs/")) {
+      messages.push({ status: "fail", path: "cubby/state/current-task.yaml", message: `draft output path outside cubby/outputs: ${draftPath}` });
+      continue;
+    }
+    if (await exists(workspacePath(workspace, draftPath))) {
+      messages.push({ status: "pass", path: draftPath, message: "draft output file exists" });
+    } else if (draft.status !== "planned") {
+      messages.push({ status: "warn", path: draftPath, message: "draft output record points to a missing file" });
+    }
+  }
+
+  for (const exportRecord of currentTask.outputs?.exports ?? []) {
+    if (!isRecord(exportRecord) || typeof exportRecord.path !== "string" || typeof exportRecord.source !== "string") {
+      messages.push({ status: "warn", path: "cubby/state/current-task.yaml", message: "export record missing path or source" });
+      continue;
+    }
+    const exportPath = exportRecord.path;
+    const sourcePath = exportRecord.source;
+    if (!exportPath.startsWith("cubby/exports/")) {
+      messages.push({ status: "fail", path: "cubby/state/current-task.yaml", message: `export path outside cubby/exports: ${exportPath}` });
+    }
+    if (!sourcePath.startsWith("cubby/outputs/")) {
+      messages.push({ status: "fail", path: "cubby/state/current-task.yaml", message: `export source outside cubby/outputs: ${sourcePath}` });
+    }
+    const exportExists = await exists(workspacePath(workspace, exportPath));
+    const sourceExists = await exists(workspacePath(workspace, sourcePath));
+    messages.push({
+      status: exportExists ? "pass" : "warn",
+      path: exportPath,
+      message: exportExists ? "export file exists" : "export record points to a missing file"
+    });
+    messages.push({
+      status: sourceExists ? "pass" : "warn",
+      path: sourcePath,
+      message: sourceExists ? "export source file exists" : "export source file is missing"
+    });
+  }
+}
+
 async function scanArtifactDir(workspace: string, relativeDir: string, messages: ValidationMessage[]): Promise<void> {
   const absoluteDir = workspacePath(workspace, relativeDir);
   if (!(await exists(absoluteDir))) {
@@ -361,6 +409,63 @@ async function scanArtifactDir(workspace: string, relativeDir: string, messages:
       path: relativePath,
       message: findings.length > 0 ? `sensitive-pattern scan found ${findings.length} finding(s)` : "sensitive-pattern scan passed"
     });
+    validateArtifactContent(relativePath, content, messages);
+  }
+}
+
+function validateArtifactContent(relativePath: string, content: string, messages: ValidationMessage[]): void {
+  const extension = path.extname(relativePath).toLowerCase();
+  if (extension === ".md") {
+    validateMarkdownArtifact(relativePath, content, messages);
+    return;
+  }
+  if (extension === ".csv") {
+    validateCsvArtifact(relativePath, content, messages);
+    return;
+  }
+  if (extension === ".yaml" || extension === ".yml") {
+    validateYamlArtifact(relativePath, content, messages);
+  }
+}
+
+function validateMarkdownArtifact(relativePath: string, content: string, messages: ValidationMessage[]): void {
+  const trimmed = content.trim();
+  if (!trimmed) {
+    messages.push({ status: "warn", path: relativePath, message: "markdown artifact is empty" });
+    return;
+  }
+  messages.push({
+    status: /^#\s+\S/m.test(content) ? "pass" : "warn",
+    path: relativePath,
+    message: /^#\s+\S/m.test(content) ? "markdown artifact has a top-level heading" : "markdown artifact missing a top-level heading"
+  });
+  messages.push({
+    status: ARTIFACT_PLACEHOLDER_PATTERN.test(content) ? "warn" : "pass",
+    path: relativePath,
+    message: ARTIFACT_PLACEHOLDER_PATTERN.test(content) ? "markdown artifact contains placeholder text" : "markdown artifact has no obvious placeholders"
+  });
+}
+
+function validateCsvArtifact(relativePath: string, content: string, messages: ValidationMessage[]): void {
+  const rows = content.trim().split(/\r?\n/).filter(Boolean);
+  if (rows.length === 0) {
+    messages.push({ status: "warn", path: relativePath, message: "CSV artifact is empty" });
+    return;
+  }
+  const headerColumns = rows[0].split(",");
+  messages.push({
+    status: headerColumns.length > 1 ? "pass" : "warn",
+    path: relativePath,
+    message: headerColumns.length > 1 ? "CSV artifact has a multi-column header" : "CSV artifact header has fewer than two columns"
+  });
+}
+
+function validateYamlArtifact(relativePath: string, content: string, messages: ValidationMessage[]): void {
+  try {
+    YAML.parse(content);
+    messages.push({ status: "pass", path: relativePath, message: "YAML artifact parsed" });
+  } catch (error) {
+    messages.push({ status: "warn", path: relativePath, message: `YAML artifact parse failed: ${(error as Error).message}` });
   }
 }
 

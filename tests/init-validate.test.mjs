@@ -142,6 +142,22 @@ test("validate warns on sensitive patterns in artifacts", async () => {
   });
 });
 
+test("validate warns on incomplete artifact content", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    await mkdir(path.join(workspace, "cubby/outputs/data-tracker"), { recursive: true });
+    await writeFile(path.join(workspace, "cubby/outputs/lesson-packs/draft.md"), "TODO add lesson details\n", "utf8");
+    await writeFile(path.join(workspace, "cubby/outputs/data-tracker/progress.csv"), "only-one-column\n", "utf8");
+
+    const result = await runCli(["validate", "--workspace", workspace]);
+
+    assert.match(result.stdout, /Cubby validation passed with warnings/);
+    assert.match(result.stdout, /markdown artifact missing a top-level heading/);
+    assert.match(result.stdout, /markdown artifact contains placeholder text/);
+    assert.match(result.stdout, /CSV artifact header has fewer than two columns/);
+  });
+});
+
 test("validate fails on broken pack references", async () => {
   await withWorkspace(async (workspace) => {
     await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
@@ -479,6 +495,8 @@ test("export copies markdown output and records state", async () => {
 
     const validate = await runCli(["validate", "--workspace", workspace]);
     assert.match(validate.stdout, /Cubby validation passed\./);
+    assert.match(validate.stdout, /export file exists/);
+    assert.match(validate.stdout, /export source file exists/);
     assert.match(validate.stdout, /task state changed from initial scaffold/);
   });
 });
