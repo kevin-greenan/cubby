@@ -31,6 +31,7 @@ node dist/cli/index.js handoff --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js artifacts --workspace ./examples/k5-special-ed-workspace --query lesson
 node dist/cli/index.js redact --workspace ./examples/k5-special-ed-workspace --source cubby/outputs/parent-emails/example/email-draft.md
 node dist/cli/index.js export --workspace ./examples/k5-special-ed-workspace --source cubby/outputs/lesson-packs/example/lesson-plan.md
+node dist/cli/index.js complete --workspace ./examples/k5-special-ed-workspace --note "Lesson draft reviewed for demo readiness."
 node dist/cli/index.js manifest --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js packs --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js upgrade --workspace ./examples/k5-special-ed-workspace --dry-run
@@ -62,6 +63,7 @@ Add tests for:
 * artifact index generation
 * artifact search
 * Markdown export gate behavior
+* completion and review-gate recording behavior
 * redaction scan reports
 * scaffold command behavior
 * sample output examples
@@ -101,15 +103,17 @@ The test suite should cover:
 24. `redact` writes a warning report under `cubby/logs/redactions/`.
 25. `export` copies reviewed Markdown outputs to `cubby/exports/markdown/`.
 26. `export` blocks when human review is required unless `--force` is provided after review.
-27. `scaffold workflow <name>`, `scaffold agent <name>`, and `scaffold pack <name> --need <unmet-use-case>` create starter source files without overwriting existing files.
-28. Active workflow packs must declare an unmet use case, include/exclude scope, quality checks, validators, and human-review gates; underspecified active packs fail validation.
-29. `packs` lists installed workflow packs.
-30. Pack references resolve to installed framework files during validation.
-31. `examples/sample-outputs/` contains fictional lesson-pack and parent-email artifacts.
-32. `manifest` summarizes managed files, missing files, and local edits.
-33. `upgrade --dry-run` reports managed-file outcomes without modifying files.
-34. `demo:lifecycle` creates an inspectable workspace with a draft, export, handoff log, artifact index, and validation log.
-35. `validate` warns on empty, placeholder-heavy, or weakly structured artifacts and checks recorded exports against their source files.
+27. `complete` marks non-review-gated work complete.
+28. `complete --reviewed` records required human review, clears the export gate, and marks the task complete.
+29. `scaffold workflow <name>`, `scaffold agent <name>`, and `scaffold pack <name> --need <unmet-use-case>` create starter source files without overwriting existing files.
+30. Active workflow packs must declare an unmet use case, include/exclude scope, quality checks, validators, and human-review gates; underspecified active packs fail validation.
+31. `packs` lists installed workflow packs.
+32. Pack references resolve to installed framework files during validation.
+33. `examples/sample-outputs/` contains fictional lesson-pack and parent-email artifacts.
+34. `manifest` summarizes managed files, missing files, and local edits.
+35. `upgrade --dry-run` reports managed-file outcomes without modifying files.
+36. `demo:lifecycle` creates an inspectable workspace with a draft, export, handoff log, artifact index, and validation log.
+37. `validate` warns on empty, placeholder-heavy, or weakly structured artifacts and checks recorded exports against their source files.
 
 ## Acceptance Standard
 

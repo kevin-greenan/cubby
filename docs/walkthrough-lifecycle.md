@@ -36,6 +36,7 @@ cubby validate
 cubby advance --phase handoff
 cubby handoff
 cubby export
+cubby complete
 cubby artifacts
 cubby manifest
 ```
@@ -47,7 +48,7 @@ The generated draft is intentionally simple and fictional. It exists to prove th
 After the run, inspect:
 
 * `AGENTS.md` for the generated adapter instructions.
-* `cubby/state/current-task.yaml` for active task, phase, subagent, validation, and output state.
+* `cubby/state/current-task.yaml` for task status, phase, subagent, validation, completion, and output state.
 * `cubby/outputs/lesson-packs/main-idea-lesson/lesson-plan.md` for the draft.
 * `cubby/exports/markdown/lesson-packs/main-idea-lesson/lesson-plan.md` for the export.
 * `cubby/logs/handoffs/` for the handoff note.
@@ -66,5 +67,6 @@ For a real teacher workflow, Codex should:
 6. Run validation and resolve warnings before treating an artifact as ready.
 7. Use `handoff` when a teacher or another agent needs continuation context.
 8. Export only reviewed artifacts that are safe for final use.
+9. Run `complete` when the task is done, using `--reviewed` for review-gated workflows.
 
 Review-gated workflows, especially family communication or student-specific support, must complete human review before export or final use.

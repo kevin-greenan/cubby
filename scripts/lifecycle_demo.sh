@@ -40,6 +40,7 @@ node "$CLI" validate --workspace "$WORKSPACE"
 node "$CLI" advance --workspace "$WORKSPACE" --phase handoff --note "Validation complete for demo artifact."
 node "$CLI" handoff --workspace "$WORKSPACE"
 node "$CLI" export --workspace "$WORKSPACE" --source cubby/outputs/lesson-packs/main-idea-lesson/lesson-plan.md
+node "$CLI" complete --workspace "$WORKSPACE" --note "Demo lifecycle completed."
 node "$CLI" artifacts --workspace "$WORKSPACE" --query main-idea
 node "$CLI" manifest --workspace "$WORKSPACE"
 

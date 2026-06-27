@@ -60,6 +60,12 @@ export interface AdvanceOptions {
   completeSubagents: boolean;
 }
 
+export interface CompleteOptions {
+  workspace: string;
+  reviewed: boolean;
+  note: string | undefined;
+}
+
 export interface UpgradeOptions {
   workspace: string;
   dryRun: boolean;

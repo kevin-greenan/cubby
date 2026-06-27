@@ -25,6 +25,7 @@ test("init creates a valid Codex workspace", async () => {
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/lesson-plan.md"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/start.md"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/advance.md"), "utf8"), /managed-by: cubby/);
+    assert.match(await readFile(path.join(workspace, "cubby/framework/commands/complete.md"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/redact.md"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/scaffold.md"), "utf8"), /managed-by: cubby/);
     assert.match(await readFile(path.join(workspace, "cubby/framework/commands/packs.md"), "utf8"), /managed-by: cubby/);
@@ -517,6 +518,57 @@ test("export blocks when human review is required", async () => {
     const forced = await runCli(["export", "--workspace", workspace, "--source", "cubby/outputs/parent-emails/draft.md", "--force"]);
     assert.match(forced.stdout, /Review override: true/);
     assert.equal(await readFile(path.join(workspace, "cubby/exports/markdown/parent-emails/draft.md"), "utf8"), "# Draft\n");
+  });
+});
+
+test("complete records review and clears export gate", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    await runCli(["start", "parent-email", "--workspace", workspace, "--title", "Conference Follow Up"]);
+    await runCli(["advance", "--workspace", workspace, "--phase", "human_gate", "--complete-subagents"]);
+
+    const draftPath = "cubby/outputs/parent-emails/conference-follow-up/email-draft.md";
+    await mkdir(path.join(workspace, "cubby/outputs/parent-emails/conference-follow-up"), { recursive: true });
+    await writeFile(path.join(workspace, draftPath), "# Conference Follow Up\n\nDraft reviewed by teacher.\n", "utf8");
+
+    await assert.rejects(runCli(["complete", "--workspace", workspace]));
+
+    const completed = await runCli([
+      "complete",
+      "--workspace",
+      workspace,
+      "--reviewed",
+      "--note",
+      "Teacher reviewed the family email draft for tone and privacy."
+    ]);
+
+    assert.match(completed.stdout, /Cubby task completed/);
+    assert.match(completed.stdout, /Status: complete/);
+    assert.match(completed.stdout, /Review recorded: true/);
+
+    const currentTask = YAML.parse(await readFile(path.join(workspace, "cubby/state/current-task.yaml"), "utf8"));
+    assert.equal(currentTask.task.status, "complete");
+    assert.equal(currentTask.validation.human_review_required.required, false);
+    assert.equal(currentTask.next_action.mode, "complete");
+    assert.ok(currentTask.decisions.some((entry) => entry.reviewed === true));
+
+    const exported = await runCli(["export", "--workspace", workspace, "--source", draftPath]);
+    assert.match(exported.stdout, /Review override: false/);
+  });
+});
+
+test("complete marks non-review-gated task complete", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+    await runCli(["start", "lesson-plan", "--workspace", workspace, "--title", "Main Idea Lesson"]);
+
+    const result = await runCli(["complete", "--workspace", workspace, "--note", "Teacher reviewed the lesson draft."]);
+
+    assert.match(result.stdout, /Cubby task completed/);
+    assert.match(result.stdout, /Review recorded: false/);
+    const currentTask = YAML.parse(await readFile(path.join(workspace, "cubby/state/current-task.yaml"), "utf8"));
+    assert.equal(currentTask.task.status, "complete");
+    assert.equal(currentTask.next_action.mode, "complete");
   });
 });
 
