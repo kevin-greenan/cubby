@@ -3,6 +3,7 @@ import YAML from "yaml";
 import { CUBBY_VERSION, FRAMEWORK_SOURCE_DIRS, LOCAL_FILES, MANAGED_VERSION, SUPPORTED_ADAPTERS, SUPPORTED_PROFILES, USER_OWNED_DIRS, WORKSPACE_DIRS } from "./constants.js";
 import { localFileContent, renderedAgents, renderedConfig, renderedCurrentTask, renderedVersion } from "./content.js";
 import { ensureDir, exists, listFilesRecursive, managedContentForPath, readText, sha256, workspacePath, writeText } from "./fs-utils.js";
+import { PACKAGE_ROOT, packagePath } from "./package-root.js";
 import type { InitOptions, ManagedFileEntry, Manifest, OperationResult } from "./types.js";
 
 interface ManagedSpec {
@@ -98,10 +99,10 @@ export async function buildManagedSpecs(options: InitOptions): Promise<ManagedSp
 async function frameworkLibrarySpecs(): Promise<ManagedSpec[]> {
   const specs: ManagedSpec[] = [];
   for (const sourceDir of FRAMEWORK_SOURCE_DIRS) {
-    const absoluteSourceDir = path.resolve(sourceDir);
+    const absoluteSourceDir = packagePath(sourceDir);
     const files = await listFilesRecursive(absoluteSourceDir);
     for (const file of files) {
-      const source = path.relative(process.cwd(), file).split(path.sep).join("/");
+      const source = path.relative(PACKAGE_ROOT, file).split(path.sep).join("/");
       const sourceWithoutPrefix = source.replace(/^src\//, "");
       const content = await readText(file);
       if (content === undefined) {

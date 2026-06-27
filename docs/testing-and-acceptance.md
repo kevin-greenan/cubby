@@ -1,6 +1,6 @@
 # Testing and Acceptance
 
-This document defines practical checks for MVP readiness.
+This document defines practical checks for release readiness.
 
 ## Minimum Commands
 
@@ -12,14 +12,19 @@ python scripts/quality_check.py
 
 It runs without third-party dependencies and is also executed in GitHub Actions.
 
-The MVP acceptance path is:
+The release acceptance path is:
 
 ```text
 npm install
 npm run quality
+npm run check:cli-docs
 npm run check
 npm run build
 npm test
+npm run smoke:package
+npm run smoke:workspace
+npm run demo:lifecycle
+npm run acceptance:release
 node dist/cli/index.js init --profile k5-special-ed --adapter codex --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js validate --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js start lesson-plan --workspace ./examples/k5-special-ed-workspace --title "Main idea lesson" --grade 2 --subject ELA --topic "main idea" --duration 45
@@ -30,12 +35,13 @@ node dist/cli/index.js handoff --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js artifacts --workspace ./examples/k5-special-ed-workspace --query lesson
 node dist/cli/index.js redact --workspace ./examples/k5-special-ed-workspace --source cubby/outputs/parent-emails/example/email-draft.md
 node dist/cli/index.js export --workspace ./examples/k5-special-ed-workspace --source cubby/outputs/lesson-packs/example/lesson-plan.md
+node dist/cli/index.js complete --workspace ./examples/k5-special-ed-workspace --note "Lesson draft reviewed for demo readiness."
 node dist/cli/index.js manifest --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js packs --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js upgrade --workspace ./examples/k5-special-ed-workspace --dry-run
 ```
 
-If a script is not implemented yet, report that plainly and add it before claiming MVP readiness.
+If a script is not implemented yet, report that plainly and add it before claiming release readiness.
 
 ## Core Test Areas
 
@@ -43,6 +49,7 @@ Add tests for:
 
 * required project docs and local Markdown links
 * CLI argument parsing
+* CLI documentation drift
 * workspace initialization
 * source folders for subagents, hooks, extensions, tools, skills, validators, and adapters
 * managed-file header insertion
@@ -61,12 +68,17 @@ Add tests for:
 * artifact index generation
 * artifact search
 * Markdown export gate behavior
+* completion and review-gate recording behavior
 * redaction scan reports
 * scaffold command behavior
 * sample output examples
 * pack listing and pack reference validation
 * manifest inspection
 * upgrade dry-run behavior
+* package contents and installed binary behavior
+* lifecycle demo artifact generation
+* release acceptance path generation
+* artifact-specific validation for Markdown, CSV, YAML, draft records, and export records
 
 ## Required Behavioral Tests
 
@@ -98,17 +110,23 @@ The test suite should cover:
 24. `redact` writes a warning report under `cubby/logs/redactions/`.
 25. `export` copies reviewed Markdown outputs to `cubby/exports/markdown/`.
 26. `export` blocks when human review is required unless `--force` is provided after review.
-27. `scaffold workflow <name>`, `scaffold agent <name>`, and `scaffold pack <name> --need <unmet-use-case>` create starter source files without overwriting existing files.
-28. Active workflow packs must declare an unmet use case, include/exclude scope, quality checks, validators, and human-review gates; underspecified active packs fail validation.
-29. `packs` lists installed workflow packs.
-30. Pack references resolve to installed framework files during validation.
-31. `examples/sample-outputs/` contains fictional lesson-pack and parent-email artifacts.
-32. `manifest` summarizes managed files, missing files, and local edits.
-33. `upgrade --dry-run` reports managed-file outcomes without modifying files.
+27. `complete` marks non-review-gated work complete.
+28. `complete --reviewed` records required human review, clears the export gate, and marks the task complete.
+29. `scaffold workflow <name>`, `scaffold agent <name>`, and `scaffold pack <name> --need <unmet-use-case>` create starter source files without overwriting existing files.
+30. Active workflow packs must declare an unmet use case, include/exclude scope, quality checks, validators, and human-review gates; underspecified active packs fail validation.
+31. `packs` lists installed workflow packs.
+32. Pack references resolve to installed framework files during validation.
+33. `examples/sample-outputs/` contains fictional lesson-pack and parent-email artifacts.
+34. `manifest` summarizes managed files, missing files, and local edits.
+35. `upgrade --dry-run` reports managed-file outcomes without modifying files.
+36. `smoke:package` verifies package contents and the installed `cubby` binary.
+37. `demo:lifecycle` creates an inspectable workspace with a draft, export, handoff log, artifact index, and validation log.
+38. `acceptance:release` runs the documented release command sequence in a clean workspace.
+39. `validate` warns on empty, placeholder-heavy, or weakly structured artifacts and checks recorded exports against their source files.
 
 ## Acceptance Standard
 
-A change is not MVP-complete just because files exist. The install loop must be reproducible:
+A change is not release-ready just because files exist. The install loop must be reproducible:
 
 * build passes
 * init succeeds
@@ -116,5 +134,8 @@ A change is not MVP-complete just because files exist. The install loop must be 
 * repeat init is safe
 * managed-file behavior is visible in CLI output
 * user-owned paths are preserved
+* a lifecycle demo can be rerun from a clean checkout after build
+* the package can be packed, installed, and invoked through the `cubby` binary
+* CLI commands stay documented in both `docs/cli-reference.md` and `src/commands/`
 
 Prefer focused tests over broad snapshot tests. Snapshot tests are acceptable only when the generated output is intentionally stable and easy to review.

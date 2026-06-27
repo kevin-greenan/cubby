@@ -2,6 +2,7 @@
 import { runAdvance } from "./advance.js";
 import { runInit } from "./init.js";
 import { runArtifacts } from "./artifacts.js";
+import { runComplete } from "./complete.js";
 import { runExport } from "./export.js";
 import { runHandoff } from "./handoff.js";
 import { runManifest } from "./manifest.js";
@@ -55,6 +56,12 @@ async function main(argv: string[]): Promise<number> {
         status: stringOptionOrUndefined(parsed.options.status),
         note: stringOptionOrUndefined(parsed.options.note),
         completeSubagents: parsed.options["complete-subagents"] === true
+      });
+    case "complete":
+      return runComplete({
+        workspace: stringOption(parsed.options.workspace, "."),
+        reviewed: parsed.options.reviewed === true,
+        note: stringOptionOrUndefined(parsed.options.note)
       });
     case "resume":
       return runResume({
@@ -151,6 +158,7 @@ Commands:
   status --workspace <path>
   start <workflow> --workspace <path> [--title <title>] [--grade <grade>] [--subject <subject>] [--topic <topic>] [--duration <minutes>] [--force]
   advance --workspace <path> [--phase <phase>] [--status <status>] [--note <note>] [--complete-subagents]
+  complete --workspace <path> [--reviewed] [--note <note>]
   resume --workspace <path>
   handoff --workspace <path>
   artifacts --workspace <path> [--query <term>]

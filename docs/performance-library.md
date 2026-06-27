@@ -39,11 +39,11 @@ High performance means:
 * generated artifacts are easy for educators to inspect and revise
 * adapters stay thin because shared source carries most of the product behavior
 
-## MVP Boundary
+## Release Boundary
 
-Milestones 1 and 2 should create the folders, contracts, and representative starter files needed for the performance library, but they do not need to implement a large executable tool ecosystem yet.
+The local v1 release includes the folders, contracts, and representative files needed for the performance library. It does not include a large executable tool ecosystem yet.
 
-For MVP:
+For this release:
 
 * hooks may remain declarative YAML and documentation
 * tools may be limited to CLI commands and quality checks
@@ -52,7 +52,7 @@ For MVP:
 * extensions may be represented by a documented source folder and future contract
 * validators may be declarative definitions plus workspace validation logic
 
-After the install/validate loop works, Cubby should expand the library aggressively in focused packs.
+Future releases should expand the library in focused packs.
 
 ## Extension Packs
 
@@ -70,7 +70,7 @@ Extension packs should be additive and reviewable. A pack may include:
 * profile defaults
 * adapter mappings
 
-Potential v1 packs:
+Current and near-term pack families:
 
 * lesson and curriculum pack
 * family communication pack
