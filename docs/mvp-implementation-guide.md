@@ -56,6 +56,7 @@ The first CLI should support:
 ```text
 cubby init --profile k5-special-ed --adapter codex --workspace ./examples/k5-special-ed-workspace
 cubby validate --workspace ./examples/k5-special-ed-workspace
+cubby start lesson-plan --workspace ./examples/k5-special-ed-workspace --title "Main idea lesson"
 cubby status --workspace ./examples/k5-special-ed-workspace
 cubby resume --workspace ./examples/k5-special-ed-workspace
 cubby handoff --workspace ./examples/k5-special-ed-workspace

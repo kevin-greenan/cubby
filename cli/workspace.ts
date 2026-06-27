@@ -11,6 +11,27 @@ export interface CurrentTask {
     phase?: string;
     risk_level?: string;
   };
+  context?: {
+    grade?: string;
+    subject?: string;
+    topic?: string;
+    duration_minutes?: number | null;
+    audience?: unknown[];
+    platforms?: object;
+  };
+  inputs?: {
+    sources?: unknown[];
+    standards?: unknown[];
+    materials?: unknown[];
+    accommodations?: {
+      source?: string;
+      contains_student_identifiers?: boolean;
+    };
+  };
+  agents?: {
+    orchestrator?: string;
+    specialists_called?: string[];
+  };
   subagents?: {
     strategy?: string;
     fanout?: {

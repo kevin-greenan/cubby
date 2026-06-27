@@ -41,6 +41,17 @@ export interface StatusOptions {
   workspace: string;
 }
 
+export interface StartOptions {
+  workspace: string;
+  workflow: string | undefined;
+  title: string | undefined;
+  grade: string | undefined;
+  subject: string | undefined;
+  topic: string | undefined;
+  duration: string | undefined;
+  force: boolean;
+}
+
 export interface UpgradeOptions {
   workspace: string;
   dryRun: boolean;
