@@ -282,6 +282,16 @@ test("start initializes current task from a workflow", async () => {
   });
 });
 
+test("start validates workflow arguments", async () => {
+  await withWorkspace(async (workspace) => {
+    await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);
+
+    await assert.rejects(runCli(["start", "--workspace", workspace]));
+    await assert.rejects(runCli(["start", "missing-workflow", "--workspace", workspace]));
+    await assert.rejects(runCli(["start", "lesson-plan", "--workspace", workspace, "--duration", "nope"]));
+  });
+});
+
 test("upgrade dry-run reports local edits without modifying files", async () => {
   await withWorkspace(async (workspace) => {
     await runCli(["init", "--profile", "k5-special-ed", "--adapter", "codex", "--workspace", workspace]);

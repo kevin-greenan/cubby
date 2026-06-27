@@ -8,13 +8,14 @@ Cubby helps educators draft, organize, validate, and hand off classroom workflow
 
 1. Read `cubby/state/current-task.yaml`.
 2. Identify the requested workflow and current phase.
-3. Check `cubby/framework/packs/` to identify the relevant workflow family.
-4. Use Cubby command files and workflow files when present.
-5. Identify whether specialist subagents should be spawned or fanned out.
-6. Write outputs under `cubby/outputs/`.
-7. Update state after major phases and after subagent fan-in.
-8. Run or simulate validation before handoff.
-9. Pause when human review is required.
+3. If the task is still `not_started`, use `cubby start <workflow>` to initialize a concrete workflow packet before drafting.
+4. Check `cubby/framework/packs/` to identify the relevant workflow family.
+5. Use Cubby command files and workflow files when present.
+6. Identify whether specialist subagents should be spawned or fanned out.
+7. Write outputs under `cubby/outputs/`.
+8. Update state after major phases and after subagent fan-in.
+9. Run or simulate validation before handoff.
+10. Pause when human review is required.
 
 ## Subagent Orchestration
 
