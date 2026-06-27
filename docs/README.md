@@ -11,11 +11,14 @@ Read order for implementation work:
 5. [adapter-contract.md](adapter-contract.md) for provider-neutral source versus adapter-specific output.
 6. [performance-library.md](performance-library.md) for the long-term hooks, extensions, tools, skills, and reusable assets that make Cubby high-performing.
 7. [testing-and-acceptance.md](testing-and-acceptance.md) for checks that define MVP readiness.
-8. [walkthrough-lesson-pack.md](walkthrough-lesson-pack.md) for a low-risk lesson pack example.
-9. [walkthrough-parent-email.md](walkthrough-parent-email.md) for a review-gated family communication example.
+8. [walkthrough-lifecycle.md](walkthrough-lifecycle.md) for the full local init-to-export loop.
+9. [walkthrough-lesson-pack.md](walkthrough-lesson-pack.md) for a low-risk lesson pack example.
+10. [walkthrough-parent-email.md](walkthrough-parent-email.md) for a review-gated family communication example.
 
 Sample generated artifacts live in [../examples/sample-outputs](../examples/sample-outputs).
 
 Run `python scripts/quality_check.py` after documentation or contract changes. GitHub Actions runs the same check on pushes and pull requests.
+
+Run `npm run demo:lifecycle` after building the CLI to create an inspectable end-to-end workspace under `/tmp`.
 
 These docs do not replace `PLAN.md`. If they conflict, follow the user's current instruction first, then `PLAN.md`, then these docs.

@@ -53,11 +53,19 @@ npm run quality
 npm test
 ```
 
+Run the lifecycle demo after building the CLI to create an inspectable workspace under `/tmp`:
+
+```text
+npm run demo:lifecycle
+```
+
 ## Development Notes
 
 Use `PLAN.md` as the product source of truth. Use `docs/` for the implementation contracts that define the MVP install loop, managed-file behavior, adapter boundary, and test expectations.
 
 Start with [docs/performance-library.md](docs/performance-library.md) when adding hooks, extensions, tools, skills, or reusable workflow packs.
+
+Use [docs/walkthrough-lifecycle.md](docs/walkthrough-lifecycle.md) for the full teacher workflow from init through start, draft output, validation, handoff, export, and artifact inspection.
 
 See [examples/sample-outputs](examples/sample-outputs) for small, fictional examples of generated artifacts, validation summaries, handoffs, and review-gated family communication.
 

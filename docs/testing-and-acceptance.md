@@ -20,6 +20,7 @@ npm run quality
 npm run check
 npm run build
 npm test
+npm run demo:lifecycle
 node dist/cli/index.js init --profile k5-special-ed --adapter codex --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js validate --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js start lesson-plan --workspace ./examples/k5-special-ed-workspace --title "Main idea lesson" --grade 2 --subject ELA --topic "main idea" --duration 45
@@ -67,6 +68,7 @@ Add tests for:
 * pack listing and pack reference validation
 * manifest inspection
 * upgrade dry-run behavior
+* lifecycle demo artifact generation
 
 ## Required Behavioral Tests
 
@@ -105,6 +107,7 @@ The test suite should cover:
 31. `examples/sample-outputs/` contains fictional lesson-pack and parent-email artifacts.
 32. `manifest` summarizes managed files, missing files, and local edits.
 33. `upgrade --dry-run` reports managed-file outcomes without modifying files.
+34. `demo:lifecycle` creates an inspectable workspace with a draft, export, handoff log, artifact index, and validation log.
 
 ## Acceptance Standard
 
@@ -116,5 +119,6 @@ A change is not MVP-complete just because files exist. The install loop must be 
 * repeat init is safe
 * managed-file behavior is visible in CLI output
 * user-owned paths are preserved
+* a lifecycle demo can be rerun from a clean checkout after build
 
 Prefer focused tests over broad snapshot tests. Snapshot tests are acceptable only when the generated output is intentionally stable and easy to review.
