@@ -24,6 +24,7 @@ node dist/cli/index.js init --profile k5-special-ed --adapter codex --workspace 
 node dist/cli/index.js validate --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js start lesson-plan --workspace ./examples/k5-special-ed-workspace --title "Main idea lesson" --grade 2 --subject ELA --topic "main idea" --duration 45
 node dist/cli/index.js status --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js advance --workspace ./examples/k5-special-ed-workspace --complete-subagents
 node dist/cli/index.js resume --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js handoff --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js artifacts --workspace ./examples/k5-special-ed-workspace --query lesson
@@ -54,6 +55,7 @@ Add tests for:
 * malformed workspace validation failures
 * status output
 * workflow start behavior
+* workflow advancement behavior
 * resume output
 * handoff log generation
 * artifact index generation
@@ -86,21 +88,23 @@ The test suite should cover:
 14. Modified managed framework library files are preserved and reported as `preserved-local-edit`.
 15. Manifest entries include path, source, managed version, hash algorithm, content hash, and local edit policy.
 16. `start <workflow>` initializes current task state from a workflow definition.
-17. `status` summarizes current task, review state, outputs, and managed-file count.
-18. `resume` prints next workflow instruction from current task state.
-19. `handoff` writes a handoff log under `cubby/logs/handoffs/`.
-20. `artifacts` writes an index under `cubby/logs/artifacts/`.
-21. `artifacts --query` prints matching artifact entries.
-22. `redact` writes a warning report under `cubby/logs/redactions/`.
-23. `export` copies reviewed Markdown outputs to `cubby/exports/markdown/`.
-24. `export` blocks when human review is required unless `--force` is provided after review.
-25. `scaffold workflow <name>`, `scaffold agent <name>`, and `scaffold pack <name> --need <unmet-use-case>` create starter source files without overwriting existing files.
-26. Active workflow packs must declare an unmet use case, include/exclude scope, quality checks, validators, and human-review gates; underspecified active packs fail validation.
-27. `packs` lists installed workflow packs.
-28. Pack references resolve to installed framework files during validation.
-29. `examples/sample-outputs/` contains fictional lesson-pack and parent-email artifacts.
-30. `manifest` summarizes managed files, missing files, and local edits.
-31. `upgrade --dry-run` reports managed-file outcomes without modifying files.
+17. `advance` moves the current task to the next workflow phase and refreshes phase subagent state.
+18. `validate` checks active workflow state against the installed workflow definition.
+19. `status` summarizes current task, review state, outputs, and managed-file count.
+20. `resume` prints next workflow instruction from current task state.
+21. `handoff` writes a handoff log under `cubby/logs/handoffs/`.
+22. `artifacts` writes an index under `cubby/logs/artifacts/`.
+23. `artifacts --query` prints matching artifact entries.
+24. `redact` writes a warning report under `cubby/logs/redactions/`.
+25. `export` copies reviewed Markdown outputs to `cubby/exports/markdown/`.
+26. `export` blocks when human review is required unless `--force` is provided after review.
+27. `scaffold workflow <name>`, `scaffold agent <name>`, and `scaffold pack <name> --need <unmet-use-case>` create starter source files without overwriting existing files.
+28. Active workflow packs must declare an unmet use case, include/exclude scope, quality checks, validators, and human-review gates; underspecified active packs fail validation.
+29. `packs` lists installed workflow packs.
+30. Pack references resolve to installed framework files during validation.
+31. `examples/sample-outputs/` contains fictional lesson-pack and parent-email artifacts.
+32. `manifest` summarizes managed files, missing files, and local edits.
+33. `upgrade --dry-run` reports managed-file outcomes without modifying files.
 
 ## Acceptance Standard
 

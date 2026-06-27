@@ -9,6 +9,7 @@ rm -rf "$WORKSPACE"
 node "$CLI" init --profile k5-special-ed --adapter codex --workspace "$WORKSPACE"
 node "$CLI" start lesson-plan --workspace "$WORKSPACE" --title "Demo lesson" --grade 2 --subject ELA --topic "main idea" --duration 45
 node "$CLI" status --workspace "$WORKSPACE"
+node "$CLI" advance --workspace "$WORKSPACE" --complete-subagents
 node "$CLI" resume --workspace "$WORKSPACE"
 
 mkdir -p "$WORKSPACE/cubby/outputs/lesson-packs/demo"

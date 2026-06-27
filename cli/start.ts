@@ -1,33 +1,8 @@
 import path from "node:path";
-import YAML from "yaml";
-import { readText, workspacePath } from "./fs-utils.js";
 import { readCurrentTask, writeCurrentTask } from "./workspace.js";
+import { agentsForPhase, readWorkflow, type WorkflowDefinition } from "./workflows.js";
 import type { StartOptions } from "./types.js";
 import type { CurrentTask } from "./workspace.js";
-
-interface WorkflowDefinition {
-  id?: string;
-  name?: string;
-  description?: string;
-  risk_level?: "low" | "medium" | "high";
-  phases?: string[];
-  subagents?: {
-    strategy?: "none" | "sequential" | "parallel" | "fanout_fanin";
-    recommended?: string[];
-    fanout_groups?: Array<{
-      phase?: string;
-      agents?: string[];
-    }>;
-  };
-  outputs?: Array<{
-    type?: string;
-    path_template?: string;
-  }>;
-  gates?: {
-    human_review_required?: boolean;
-    validators?: string[];
-  };
-}
 
 export async function runStart(options: StartOptions): Promise<number> {
   const workspace = path.resolve(options.workspace);
@@ -88,11 +63,6 @@ export async function runStart(options: StartOptions): Promise<number> {
   return 0;
 }
 
-async function readWorkflow(workspace: string, workflowId: string): Promise<WorkflowDefinition | undefined> {
-  const text = await readText(workspacePath(workspace, `cubby/framework/workflows/${workflowId}.yaml`));
-  return text ? (YAML.parse(text) as WorkflowDefinition) : undefined;
-}
-
 function buildCurrentTask(
   workflow: WorkflowDefinition,
   options: {
@@ -108,7 +78,8 @@ function buildCurrentTask(
 ): CurrentTask {
   const validators = workflow.gates?.validators ?? [];
   const recommendedAgents = workflow.subagents?.recommended ?? [];
-  const firstPhaseAgents = workflow.subagents?.fanout_groups?.find((group) => group.phase === options.phase)?.agents ?? recommendedAgents;
+  const firstPhaseAgents = agentsForPhase(workflow, options.phase);
+  const requestedAgents = firstPhaseAgents.length > 0 ? firstPhaseAgents : recommendedAgents;
   const humanReviewRequired = workflow.gates?.human_review_required === true;
   return {
     task: {
@@ -143,11 +114,11 @@ function buildCurrentTask(
     subagents: {
       strategy: workflow.subagents?.strategy ?? "none",
       fanout: {
-        status: firstPhaseAgents.length > 0 ? "not_started" : "complete",
-        requested: firstPhaseAgents,
+        status: requestedAgents.length > 0 ? "not_started" : "complete",
+        requested: requestedAgents,
         completed: []
       },
-      calls: firstPhaseAgents.map((agent, index) => ({
+      calls: requestedAgents.map((agent, index) => ({
         id: `${options.taskSlug}-${index + 1}-${agent}`,
         agent,
         purpose: `Support ${options.phase} phase for ${options.workflowId}.`,

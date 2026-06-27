@@ -39,7 +39,7 @@ export interface CurrentTask {
       requested?: unknown[];
       completed?: unknown[];
     };
-    calls?: unknown[];
+    calls?: SubagentCall[];
   };
   decisions?: unknown[];
   blockers?: unknown[];
@@ -57,6 +57,21 @@ export interface CurrentTask {
     mode?: string;
     message?: string;
   };
+}
+
+export interface SubagentCall {
+  id?: string;
+  agent?: string;
+  purpose?: string;
+  status?: string;
+  inputs?: {
+    workflow?: string;
+    phase?: string;
+    title?: string;
+    context?: object;
+  };
+  outputs?: unknown[];
+  notes?: string;
 }
 
 export async function readCurrentTask(workspace: string): Promise<CurrentTask | undefined> {
