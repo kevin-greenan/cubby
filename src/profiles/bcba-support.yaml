@@ -1,0 +1,7 @@
+id: bcba-support
+default_agents:
+  - classroom-orchestrator
+  - behavior-support-specialist
+default_commands:
+  - behavior-routine
+  - data-tracker

@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cubby Current Task State",
+  "type": "object",
+  "required": ["task", "context", "inputs", "agents", "decisions", "blockers", "validation", "outputs", "next_action"],
+  "additionalProperties": false,
+  "properties": {
+    "task": {
+      "type": "object",
+      "required": ["id", "title", "workflow", "status", "phase", "risk_level"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "workflow": { "type": "string" },
+        "status": { "enum": ["not_started", "in_progress", "blocked", "waiting_for_review", "complete"] },
+        "phase": { "type": "string" },
+        "risk_level": { "enum": ["low", "medium", "high"] }
+      }
+    },
+    "context": {
+      "type": "object",
+      "required": ["grade", "subject", "topic", "duration_minutes", "audience", "platforms"],
+      "additionalProperties": false,
+      "properties": {
+        "grade": { "type": "string" },
+        "subject": { "type": "string" },
+        "topic": { "type": "string" },
+        "duration_minutes": { "type": ["integer", "null"], "minimum": 0 },
+        "audience": { "type": "array", "items": { "type": "string" } },
+        "platforms": { "type": "object" }
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "required": ["sources", "standards", "materials", "accommodations"],
+      "additionalProperties": false,
+      "properties": {
+        "sources": { "type": "array" },
+        "standards": { "type": "array" },
+        "materials": { "type": "array" },
+        "accommodations": {
+          "type": "object",
+          "required": ["source", "contains_student_identifiers"],
+          "additionalProperties": false,
+          "properties": {
+            "source": { "type": "string" },
+            "contains_student_identifiers": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "agents": {
+      "type": "object",
+      "required": ["orchestrator", "specialists_called"],
+      "additionalProperties": false,
+      "properties": {
+        "orchestrator": { "type": "string" },
+        "specialists_called": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "decisions": { "type": "array" },
+    "blockers": { "type": "array" },
+    "validation": {
+      "type": "object",
+      "required": ["privacy", "alignment", "accessibility", "human_review_required"],
+      "additionalProperties": false,
+      "properties": {
+        "privacy": { "$ref": "#/$defs/validationResult" },
+        "alignment": { "$ref": "#/$defs/validationResult" },
+        "accessibility": { "$ref": "#/$defs/validationResult" },
+        "human_review_required": {
+          "type": "object",
+          "required": ["required", "reason"],
+          "additionalProperties": false,
+          "properties": {
+            "required": { "type": "boolean" },
+            "reason": { "type": "string" }
+          }
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "required": ["drafts", "exports"],
+      "additionalProperties": false,
+      "properties": {
+        "drafts": { "type": "array" },
+        "exports": { "type": "array" }
+      }
+    },
+    "next_action": {
+      "type": "object",
+      "required": ["mode", "message"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": { "enum": ["continue", "pause_for_review", "blocked", "complete"] },
+        "message": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "validationResult": {
+      "type": "object",
+      "required": ["status", "notes"],
+      "additionalProperties": false,
+      "properties": {
+        "status": { "enum": ["not_run", "pass", "warn", "fail"] },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+id: k5-general
+default_agents:
+  - classroom-orchestrator
+default_commands:
+  - lesson-plan
+  - parent-email

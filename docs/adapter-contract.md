@@ -25,6 +25,9 @@ src/templates/
 src/schemas/
 src/validators/
 src/hooks/
+src/extensions/
+src/tools/
+src/skills/
 src/profiles/
 ```
 
@@ -52,6 +55,7 @@ An adapter may:
 
 * Render provider-specific instruction files.
 * Map shared commands into provider-readable guidance.
+* Map shared skills and tools into provider-supported formats when available.
 * Summarize relevant rules and validation gates.
 * Define output conventions expected by the provider.
 * Include adapter-specific installation metadata.
@@ -70,6 +74,7 @@ Before adding a future adapter, define:
 * generated files
 * required source templates
 * install-map behavior
+* skill and tool mapping behavior
 * validation expectations
 * managed-file metadata
 * tests proving install output

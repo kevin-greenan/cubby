@@ -1,0 +1,6 @@
+id: accessibility-check
+checks:
+  - clear directions
+  - developmentally appropriate language
+  - visual structure
+results: [pass, warn, fail]

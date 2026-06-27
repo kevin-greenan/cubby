@@ -1,0 +1,4 @@
+id: parent-email
+name: Parent Email
+risk_level: high
+phases: [intake, draft, review, validation, human_gate, handoff]

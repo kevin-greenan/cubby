@@ -1,0 +1,6 @@
+id: behavior-support-check
+checks:
+  - no diagnosis
+  - hypotheses labeled
+  - no punitive framing
+results: [pass, warn, fail]

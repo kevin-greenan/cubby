@@ -1,0 +1,4 @@
+id: accommodation-check
+name: Accommodation Check
+risk_level: high
+phases: [intake, review, validation, human_gate, handoff]

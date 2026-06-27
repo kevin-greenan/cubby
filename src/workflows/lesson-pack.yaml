@@ -1,0 +1,4 @@
+id: lesson-pack
+name: Lesson Pack
+risk_level: low
+phases: [intake, draft, review, validation, handoff]

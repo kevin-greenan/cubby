@@ -1,0 +1,3 @@
+hook_decision:
+  action: validate
+  reason: Run validation gates before handoff or export.

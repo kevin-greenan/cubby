@@ -1,0 +1,6 @@
+id: iep-support-check
+checks:
+  - draft status clear
+  - no eligibility determination
+  - human review required
+results: [pass, warn, fail]

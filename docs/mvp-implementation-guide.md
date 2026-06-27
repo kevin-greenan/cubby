@@ -14,19 +14,21 @@ MVP success means:
 * Repeat init is safe and inspectable.
 * Generated files are tracked in `cubby/manifest.yaml`.
 * Local customization, outputs, exports, and logs are never overwritten.
+* The source tree leaves clear, provider-neutral places for hooks, extensions, tools, skills, validators, and future library packs.
 
 ## Recommended Build Order
 
 1. Create the TypeScript project shell.
 2. Add CLI argument parsing for `init` and `validate`.
 3. Add static source content needed for the Codex adapter.
-4. Implement deterministic directory creation.
-5. Implement managed-file writing with headers.
-6. Implement manifest creation with hashes.
-7. Implement repeat-init handling for unchanged, changed, and missing managed files.
-8. Implement workspace validation.
-9. Add tests for init, validate, manifest, and preservation behavior.
-10. Add README quickstart after the commands actually work.
+4. Add source folders and representative starter files for agents, workflows, commands, rules, templates, validators, hooks, extensions, tools, skills, profiles, and adapters.
+5. Implement deterministic directory creation.
+6. Implement managed-file writing with headers.
+7. Implement manifest creation with hashes.
+8. Implement repeat-init handling for unchanged, changed, and missing managed files.
+9. Implement workspace validation.
+10. Add tests for init, validate, manifest, and preservation behavior.
+11. Add README quickstart after the commands actually work.
 
 ## Keep Scope Narrow
 
@@ -41,6 +43,8 @@ Do not implement these in the first MVP pass:
 * Full autonomous continuation
 
 Scaffold future concepts only when they support the first install/validate loop.
+
+Do create clear source locations for Cubby's performance library. Hooks, extensions, tools, and skills are first-class framework concepts, even when their first MVP representation is declarative or documented rather than fully executable.
 
 ## First Useful CLI
 

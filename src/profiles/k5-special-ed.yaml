@@ -1,0 +1,9 @@
+id: k5-special-ed
+default_agents:
+  - classroom-orchestrator
+  - differentiation-specialist
+  - iep-support-specialist
+default_commands:
+  - lesson-plan
+  - accommodation-check
+  - iep-goal-support
