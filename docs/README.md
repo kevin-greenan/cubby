@@ -10,10 +10,11 @@ Read order for implementation work:
 4. [manifest-and-managed-files.md](manifest-and-managed-files.md) for managed-file metadata, hashes, and repeat-init behavior.
 5. [adapter-contract.md](adapter-contract.md) for provider-neutral source versus adapter-specific output.
 6. [performance-library.md](performance-library.md) for the long-term hooks, extensions, tools, skills, and reusable assets that make Cubby high-performing.
-7. [testing-and-acceptance.md](testing-and-acceptance.md) for checks that define MVP readiness.
-8. [walkthrough-lifecycle.md](walkthrough-lifecycle.md) for the full local init-to-export loop.
-9. [walkthrough-lesson-pack.md](walkthrough-lesson-pack.md) for a low-risk lesson pack example.
-10. [walkthrough-parent-email.md](walkthrough-parent-email.md) for a review-gated family communication example.
+7. [cli-reference.md](cli-reference.md) for command purpose, arguments, gates, and common flows.
+8. [testing-and-acceptance.md](testing-and-acceptance.md) for checks that define MVP readiness.
+9. [walkthrough-lifecycle.md](walkthrough-lifecycle.md) for the full local init-to-export loop.
+10. [walkthrough-lesson-pack.md](walkthrough-lesson-pack.md) for a low-risk lesson pack example.
+11. [walkthrough-parent-email.md](walkthrough-parent-email.md) for a review-gated family communication example.
 
 Sample generated artifacts live in [../examples/sample-outputs](../examples/sample-outputs).
 
