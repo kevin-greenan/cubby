@@ -9,10 +9,23 @@ Cubby helps educators draft, organize, validate, and hand off classroom workflow
 1. Read `cubby/state/current-task.yaml`.
 2. Identify the requested workflow and current phase.
 3. Use Cubby command files and workflow files when present.
-4. Write outputs under `cubby/outputs/`.
-5. Update state after major phases.
-6. Run or simulate validation before handoff.
-7. Pause when human review is required.
+4. Identify whether specialist subagents should be spawned or fanned out.
+5. Write outputs under `cubby/outputs/`.
+6. Update state after major phases and after subagent fan-in.
+7. Run or simulate validation before handoff.
+8. Pause when human review is required.
+
+## Subagent Orchestration
+
+Cubby expects the classroom orchestrator to spawn focused specialist subagents when the workflow benefits from domain review, parallel drafting, or independent validation. Use `cubby/framework/subagents/` for the shared protocol and `cubby/framework/agents/` for specialist definitions.
+
+When spawning subagents:
+
+* Give each subagent a bounded task packet with purpose, source context, excluded work, expected output, and review gate.
+* Fan out to multiple specialists only when their work can proceed independently.
+* Fan results back into the orchestrator before writing final drafts.
+* Record the strategy, requested specialists, completed specialists, and call notes in `cubby/state/current-task.yaml`.
+* Treat subagent output as advisory until validation and required human review are complete.
 
 ## Human Review Gates
 
@@ -31,6 +44,16 @@ Sensitive outputs are drafts only until reviewed by the teacher or qualified pro
 ## Workspace Paths
 
 * State: `cubby/state/current-task.yaml`
+* Framework library: `cubby/framework/`
+* Commands: `cubby/framework/commands/`
+* Workflows: `cubby/framework/workflows/`
+* Rules: `cubby/framework/rules/`
+* Subagents: `cubby/framework/subagents/`
+* Validators: `cubby/framework/validators/`
+* Hooks: `cubby/framework/hooks/`
+* Skills: `cubby/framework/skills/`
+* Tools: `cubby/framework/tools/`
+* Extensions: `cubby/framework/extensions/`
 * Local context: `cubby/local/`
 * Custom templates: `cubby/templates/custom/`
 * Outputs: `cubby/outputs/`

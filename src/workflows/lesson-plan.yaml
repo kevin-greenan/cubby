@@ -1,4 +1,42 @@
 id: lesson-plan
 name: Lesson Plan
+description: Create a single lesson plan draft with validation and handoff.
 risk_level: low
-phases: [intake, draft, validation, handoff]
+phases:
+  - intake
+  - context
+  - draft
+  - review
+  - validation
+  - handoff
+subagents:
+  strategy: fanout_fanin
+  recommended:
+    - lesson-architect
+    - curriculum-alignment-specialist
+    - differentiation-specialist
+    - materials-designer
+    - privacy-safeguards-reviewer
+  fanout_groups:
+    - phase: draft
+      agents:
+        - lesson-architect
+        - curriculum-alignment-specialist
+        - differentiation-specialist
+    - phase: review
+      agents:
+        - materials-designer
+        - privacy-safeguards-reviewer
+outputs:
+  - type: markdown
+    path_template: cubby/outputs/lesson-packs/{{task_slug}}/lesson-plan.md
+gates:
+  human_review_required: false
+  validators:
+    - privacy-check
+    - accessibility-check
+    - alignment-check
+autonomy:
+  guided: draft_with_checkpoints
+  managed: draft_validate_handoff
+  autonomous: low_risk_only

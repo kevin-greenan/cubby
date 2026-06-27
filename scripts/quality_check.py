@@ -36,6 +36,7 @@ REQUIRED_FILES = [
     "src/extensions/README.md",
     "src/tools/README.md",
     "src/skills/README.md",
+    "src/subagents/README.md",
 ]
 
 STATUS_NAMES = [
@@ -70,6 +71,7 @@ def markdown_files() -> list[Path]:
         path
         for path in ROOT.rglob("*.md")
         if ".git" not in path.parts and "node_modules" not in path.parts
+        and not any(part.endswith("-workspace") for part in path.parts)
     )
 
 
@@ -139,6 +141,8 @@ def check_plan_contracts(errors: list[str]) -> None:
         errors.append("PLAN.md must distinguish root AGENTS.md from generated workspace AGENTS.md")
     if "docs/" not in plan:
         errors.append("PLAN.md must mention implementation support docs")
+    if "subagent" not in plan.lower():
+        errors.append("PLAN.md must make subagent orchestration explicit")
 
 
 def check_docs_index(errors: list[str]) -> None:

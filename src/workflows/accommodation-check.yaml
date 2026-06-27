@@ -2,3 +2,17 @@ id: accommodation-check
 name: Accommodation Check
 risk_level: high
 phases: [intake, review, validation, human_gate, handoff]
+subagents:
+  strategy: sequential
+  recommended:
+    - iep-support-specialist
+    - accessibility-language-reviewer
+    - privacy-safeguards-reviewer
+  fanout_groups:
+    - phase: review
+      agents:
+        - iep-support-specialist
+        - accessibility-language-reviewer
+    - phase: validation
+      agents:
+        - privacy-safeguards-reviewer

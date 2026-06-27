@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 export function workspacePath(workspace: string, relativePath = ""): string {
@@ -58,4 +58,31 @@ export function yamlHeader(): string {
     "# safe-customization: use cubby/local/ or cubby/templates/custom/",
     ""
   ].join("\n");
+}
+
+export async function listFilesRecursive(dirPath: string): Promise<string[]> {
+  const entries = await readdir(dirPath, { withFileTypes: true });
+  const files = await Promise.all(
+    entries.map(async (entry) => {
+      const entryPath = path.join(dirPath, entry.name);
+      if (entry.isDirectory()) {
+        return listFilesRecursive(entryPath);
+      }
+      if (entry.isFile()) {
+        return [entryPath];
+      }
+      return [];
+    })
+  );
+  return files.flat().sort();
+}
+
+export function managedContentForPath(relativePath: string, content: string): string {
+  if (relativePath.endsWith(".md")) {
+    return `${markdownHeader()}${content}`;
+  }
+  if (relativePath.endsWith(".yaml") || relativePath.endsWith(".yml")) {
+    return `${yamlHeader()}${content}`;
+  }
+  return content;
 }

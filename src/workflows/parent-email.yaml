@@ -1,4 +1,43 @@
 id: parent-email
 name: Parent Email
+description: Draft family-facing communication for teacher review.
 risk_level: high
-phases: [intake, draft, review, validation, human_gate, handoff]
+phases:
+  - intake
+  - safety
+  - draft
+  - review
+  - validation
+  - human_gate
+  - handoff
+subagents:
+  strategy: sequential
+  recommended:
+    - family-communication-specialist
+    - privacy-safeguards-reviewer
+    - accessibility-language-reviewer
+  fanout_groups:
+    - phase: safety
+      agents:
+        - privacy-safeguards-reviewer
+    - phase: draft
+      agents:
+        - family-communication-specialist
+    - phase: review
+      agents:
+        - accessibility-language-reviewer
+outputs:
+  - type: markdown
+    path_template: cubby/outputs/parent-emails/{{task_slug}}/email-draft.md
+  - type: markdown
+    path_template: cubby/outputs/parent-emails/{{task_slug}}/review-checklist.md
+gates:
+  human_review_required: true
+  validators:
+    - privacy-check
+    - family-communication-check
+    - accessibility-check
+autonomy:
+  guided: draft_only
+  managed: draft_validate_pause
+  autonomous: disabled

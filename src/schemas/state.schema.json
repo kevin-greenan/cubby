@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Cubby Current Task State",
   "type": "object",
-  "required": ["task", "context", "inputs", "agents", "decisions", "blockers", "validation", "outputs", "next_action"],
+  "required": ["task", "context", "inputs", "agents", "subagents", "decisions", "blockers", "validation", "outputs", "next_action"],
   "additionalProperties": false,
   "properties": {
     "task": {
@@ -57,6 +57,41 @@
       "properties": {
         "orchestrator": { "type": "string" },
         "specialists_called": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "subagents": {
+      "type": "object",
+      "required": ["strategy", "fanout", "calls"],
+      "additionalProperties": false,
+      "properties": {
+        "strategy": { "enum": ["none", "sequential", "parallel", "fanout_fanin"] },
+        "fanout": {
+          "type": "object",
+          "required": ["status", "requested", "completed"],
+          "additionalProperties": false,
+          "properties": {
+            "status": { "enum": ["not_started", "in_progress", "complete"] },
+            "requested": { "type": "array", "items": { "type": "string" } },
+            "completed": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "calls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "agent", "purpose", "status", "inputs", "outputs", "notes"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string" },
+              "agent": { "type": "string" },
+              "purpose": { "type": "string" },
+              "status": { "enum": ["pending", "running", "complete", "failed", "skipped"] },
+              "inputs": { "type": "object" },
+              "outputs": { "type": "array" },
+              "notes": { "type": "string" }
+            }
+          }
+        }
       }
     },
     "decisions": { "type": "array" },

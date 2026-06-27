@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import YAML from "yaml";
-import { CUBBY_VERSION } from "./constants.js";
+import { CUBBY_VERSION, PROFILE_DEFAULTS } from "./constants.js";
 import { markdownHeader, yamlHeader } from "./fs-utils.js";
 
 const REPO_ROOT = process.cwd();
@@ -22,10 +22,20 @@ export function renderedVersion(): string {
 }
 
 export function renderedConfig(profile: string, adapter: string): string {
+  const defaults = PROFILE_DEFAULTS[profile] ?? {
+    agents: ["classroom-orchestrator"],
+    subagents: ["lesson-architect"],
+    commands: ["lesson-plan"]
+  };
   return `${yamlHeader()}${YAML.stringify({
     cubby_version: CUBBY_VERSION,
     profile,
     adapter,
+    enabled: {
+      agents: defaults.agents,
+      subagents: defaults.subagents,
+      commands: defaults.commands
+    },
     autonomy: {
       mode: "guided",
       allow_autonomous: ["lesson-plan", "lesson-pack", "sub-plan", "rubric", "data-tracker"],
@@ -84,6 +94,15 @@ export function renderedCurrentTask(): string {
     agents: {
       orchestrator: "classroom-orchestrator",
       specialists_called: []
+    },
+    subagents: {
+      strategy: "none",
+      fanout: {
+        status: "not_started",
+        requested: [],
+        completed: []
+      },
+      calls: []
     },
     decisions: [],
     blockers: [],

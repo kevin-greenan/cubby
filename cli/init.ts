@@ -1,8 +1,8 @@
 import path from "node:path";
 import YAML from "yaml";
-import { CUBBY_VERSION, LOCAL_FILES, MANAGED_VERSION, SUPPORTED_ADAPTERS, SUPPORTED_PROFILES, USER_OWNED_DIRS, WORKSPACE_DIRS } from "./constants.js";
+import { CUBBY_VERSION, FRAMEWORK_SOURCE_DIRS, LOCAL_FILES, MANAGED_VERSION, SUPPORTED_ADAPTERS, SUPPORTED_PROFILES, USER_OWNED_DIRS, WORKSPACE_DIRS } from "./constants.js";
 import { localFileContent, renderedAgents, renderedConfig, renderedCurrentTask, renderedVersion } from "./content.js";
-import { ensureDir, exists, readText, sha256, workspacePath, writeText } from "./fs-utils.js";
+import { ensureDir, exists, listFilesRecursive, managedContentForPath, readText, sha256, workspacePath, writeText } from "./fs-utils.js";
 import type { InitOptions, ManagedFileEntry, Manifest, OperationResult } from "./types.js";
 
 interface ManagedSpec {
@@ -41,28 +41,7 @@ export async function runInit(options: InitOptions): Promise<number> {
   const createdAt = previousManifest?.created_at ?? new Date().toISOString();
   const previousEntries = new Map(previousManifest?.managed_files.map((entry) => [entry.path, entry]) ?? []);
 
-  const specs: ManagedSpec[] = [
-    {
-      path: "AGENTS.md",
-      source: "src/adapters/codex/AGENTS.md.template",
-      content: await renderedAgents(options.profile)
-    },
-    {
-      path: ".cubby-version",
-      source: "cli/init.ts:renderedVersion",
-      content: renderedVersion()
-    },
-    {
-      path: "cubby/config.yaml",
-      source: "cli/init.ts:renderedConfig",
-      content: renderedConfig(options.profile, options.adapter)
-    },
-    {
-      path: "cubby/state/current-task.yaml",
-      source: "cli/init.ts:renderedCurrentTask",
-      content: renderedCurrentTask()
-    }
-  ];
+  const specs = await buildManagedSpecs(options);
 
   const managedFiles: ManagedFileEntry[] = [];
   for (const spec of specs) {
@@ -88,6 +67,54 @@ export async function runInit(options: InitOptions): Promise<number> {
 
   printResults("Cubby init complete.", workspace, results);
   return results.some((result) => result.status === "failed") ? 1 : 0;
+}
+
+export async function buildManagedSpecs(options: InitOptions): Promise<ManagedSpec[]> {
+  return [
+    {
+      path: "AGENTS.md",
+      source: "src/adapters/codex/AGENTS.md.template",
+      content: await renderedAgents(options.profile)
+    },
+    {
+      path: ".cubby-version",
+      source: "cli/init.ts:renderedVersion",
+      content: renderedVersion()
+    },
+    {
+      path: "cubby/config.yaml",
+      source: "cli/init.ts:renderedConfig",
+      content: renderedConfig(options.profile, options.adapter)
+    },
+    {
+      path: "cubby/state/current-task.yaml",
+      source: "cli/init.ts:renderedCurrentTask",
+      content: renderedCurrentTask()
+    },
+    ...(await frameworkLibrarySpecs())
+  ];
+}
+
+async function frameworkLibrarySpecs(): Promise<ManagedSpec[]> {
+  const specs: ManagedSpec[] = [];
+  for (const sourceDir of FRAMEWORK_SOURCE_DIRS) {
+    const absoluteSourceDir = path.resolve(sourceDir);
+    const files = await listFilesRecursive(absoluteSourceDir);
+    for (const file of files) {
+      const source = path.relative(process.cwd(), file).split(path.sep).join("/");
+      const sourceWithoutPrefix = source.replace(/^src\//, "");
+      const content = await readText(file);
+      if (content === undefined) {
+        continue;
+      }
+      specs.push({
+        path: `cubby/framework/${sourceWithoutPrefix}`,
+        source,
+        content: managedContentForPath(source, content)
+      });
+    }
+  }
+  return specs;
 }
 
 async function writeManagedFile(

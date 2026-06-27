@@ -2,6 +2,10 @@ id: bcba-support
 default_agents:
   - classroom-orchestrator
   - behavior-support-specialist
+default_subagents:
+  - behavior-support-specialist
+  - data-progress-specialist
+  - privacy-safeguards-reviewer
 default_commands:
   - behavior-routine
   - data-tracker

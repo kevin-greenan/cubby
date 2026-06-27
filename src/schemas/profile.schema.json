@@ -1,5 +1,22 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Cubby Profile",
-  "type": "object"
+  "type": "object",
+  "required": ["id", "default_agents", "default_commands"],
+  "additionalProperties": true,
+  "properties": {
+    "id": { "type": "string" },
+    "default_agents": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "default_subagents": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "default_commands": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
 }
