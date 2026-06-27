@@ -30,9 +30,10 @@ Validate it:
 node dist/cli/index.js validate --workspace ./examples/k5-special-ed-workspace
 ```
 
-Inspect task status or preview managed-file changes:
+Start a workflow, inspect task status, or preview managed-file changes:
 
 ```text
+node dist/cli/index.js start lesson-plan --workspace ./examples/k5-special-ed-workspace --title "Main idea lesson" --grade 2 --subject ELA --topic "main idea" --duration 45
 node dist/cli/index.js status --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js resume --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js handoff --workspace ./examples/k5-special-ed-workspace

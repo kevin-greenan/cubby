@@ -8,6 +8,7 @@ import { runPacks } from "./packs.js";
 import { runRedact } from "./redact.js";
 import { runResume } from "./resume.js";
 import { runScaffold } from "./scaffold.js";
+import { runStart } from "./start.js";
 import { runStatus } from "./status.js";
 import { runUpgrade } from "./upgrade.js";
 import { runValidate } from "./validate.js";
@@ -34,6 +35,17 @@ async function main(argv: string[]): Promise<number> {
     case "status":
       return runStatus({
         workspace: stringOption(parsed.options.workspace, ".")
+      });
+    case "start":
+      return runStart({
+        workspace: stringOption(parsed.options.workspace, "."),
+        workflow: parsed.args[0],
+        title: stringOptionOrUndefined(parsed.options.title),
+        grade: stringOptionOrUndefined(parsed.options.grade),
+        subject: stringOptionOrUndefined(parsed.options.subject),
+        topic: stringOptionOrUndefined(parsed.options.topic),
+        duration: stringOptionOrUndefined(parsed.options.duration),
+        force: parsed.options.force === true
       });
     case "resume":
       return runResume({
@@ -128,6 +140,7 @@ Commands:
   init --profile <name> --adapter <name> --workspace <path>
   validate --workspace <path>
   status --workspace <path>
+  start <workflow> --workspace <path> [--title <title>] [--grade <grade>] [--subject <subject>] [--topic <topic>] [--duration <minutes>] [--force]
   resume --workspace <path>
   handoff --workspace <path>
   artifacts --workspace <path> [--query <term>]

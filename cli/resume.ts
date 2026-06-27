@@ -23,7 +23,7 @@ export async function runResume(options: ResumeOptions): Promise<number> {
 
   if (task.status === "blocked") {
     console.log("Instruction: stop and resolve blockers before continuing.");
-  } else if (next.mode === "pause_for_review" || currentTask.validation?.human_review_required?.required) {
+  } else if (next.mode === "pause_for_review" || (task.status === "waiting_for_review" && currentTask.validation?.human_review_required?.required)) {
     console.log("Instruction: pause for human review before continuing or exporting.");
   } else if (task.status === "complete" || next.mode === "complete") {
     console.log("Instruction: task is complete; create or review handoff.");

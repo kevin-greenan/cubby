@@ -22,6 +22,7 @@ npm run build
 npm test
 node dist/cli/index.js init --profile k5-special-ed --adapter codex --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js validate --workspace ./examples/k5-special-ed-workspace
+node dist/cli/index.js start lesson-plan --workspace ./examples/k5-special-ed-workspace --title "Main idea lesson" --grade 2 --subject ELA --topic "main idea" --duration 45
 node dist/cli/index.js status --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js resume --workspace ./examples/k5-special-ed-workspace
 node dist/cli/index.js handoff --workspace ./examples/k5-special-ed-workspace
@@ -52,6 +53,7 @@ Add tests for:
 * output/export/log preservation
 * malformed workspace validation failures
 * status output
+* workflow start behavior
 * resume output
 * handoff log generation
 * artifact index generation
@@ -83,21 +85,22 @@ The test suite should cover:
 13. Modified managed files are preserved and reported as `preserved-local-edit`.
 14. Modified managed framework library files are preserved and reported as `preserved-local-edit`.
 15. Manifest entries include path, source, managed version, hash algorithm, content hash, and local edit policy.
-16. `status` summarizes current task, review state, outputs, and managed-file count.
-17. `resume` prints next workflow instruction from current task state.
-18. `handoff` writes a handoff log under `cubby/logs/handoffs/`.
-19. `artifacts` writes an index under `cubby/logs/artifacts/`.
-20. `artifacts --query` prints matching artifact entries.
-21. `redact` writes a warning report under `cubby/logs/redactions/`.
-22. `export` copies reviewed Markdown outputs to `cubby/exports/markdown/`.
-23. `export` blocks when human review is required unless `--force` is provided after review.
-24. `scaffold workflow <name>`, `scaffold agent <name>`, and `scaffold pack <name> --need <unmet-use-case>` create starter source files without overwriting existing files.
-25. Active workflow packs must declare an unmet use case, include/exclude scope, quality checks, validators, and human-review gates; underspecified active packs fail validation.
-26. `packs` lists installed workflow packs.
-27. Pack references resolve to installed framework files during validation.
-28. `examples/sample-outputs/` contains fictional lesson-pack and parent-email artifacts.
-29. `manifest` summarizes managed files, missing files, and local edits.
-30. `upgrade --dry-run` reports managed-file outcomes without modifying files.
+16. `start <workflow>` initializes current task state from a workflow definition.
+17. `status` summarizes current task, review state, outputs, and managed-file count.
+18. `resume` prints next workflow instruction from current task state.
+19. `handoff` writes a handoff log under `cubby/logs/handoffs/`.
+20. `artifacts` writes an index under `cubby/logs/artifacts/`.
+21. `artifacts --query` prints matching artifact entries.
+22. `redact` writes a warning report under `cubby/logs/redactions/`.
+23. `export` copies reviewed Markdown outputs to `cubby/exports/markdown/`.
+24. `export` blocks when human review is required unless `--force` is provided after review.
+25. `scaffold workflow <name>`, `scaffold agent <name>`, and `scaffold pack <name> --need <unmet-use-case>` create starter source files without overwriting existing files.
+26. Active workflow packs must declare an unmet use case, include/exclude scope, quality checks, validators, and human-review gates; underspecified active packs fail validation.
+27. `packs` lists installed workflow packs.
+28. Pack references resolve to installed framework files during validation.
+29. `examples/sample-outputs/` contains fictional lesson-pack and parent-email artifacts.
+30. `manifest` summarizes managed files, missing files, and local edits.
+31. `upgrade --dry-run` reports managed-file outcomes without modifying files.
 
 ## Acceptance Standard
 

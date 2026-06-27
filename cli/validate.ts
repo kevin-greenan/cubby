@@ -45,6 +45,7 @@ const REQUIRED_PATHS = [
   "cubby/config.yaml",
   "cubby/manifest.yaml",
   "cubby/state/current-task.yaml",
+  "cubby/framework/commands/start.md",
   "cubby/framework/commands/lesson-plan.md",
   "cubby/framework/workflows/lesson-plan.yaml",
   "cubby/framework/rules/core/human-review.md",

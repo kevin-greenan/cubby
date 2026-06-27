@@ -238,6 +238,7 @@ cubby/
       iep-goal-support.md
       data-tracker.md
       behavior-routine.md
+      start.md
       validate.md
       status.md
       resume.md
